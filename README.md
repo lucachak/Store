@@ -1,9 +1,11 @@
-Just to make sure that everything run smoothly.
-#1 - Copy this repo. either by git clone + this url, or download the zip
-#2 - make sure that you have python3 then create a venv (python3 -m venv .venv)
-#3 - activate the venv by running source .venv/bin/activate 
-#4 - run the code with python3 manage.py runserver
+<h1 align="center">Hi 👋, I'm Lucas Lucachak</h1>
+<h3 align="center">I really like backend, although being versitle is a little more interresting</h3>
 
+- 🔭 I’m currently working on [a Django Saas project](https://github.com/lucachak/Store)
 
----- if errors ----
-run pip install -r requirements.txt with the .venv active  
+- 🌱 I’m currently learning **Django - Rest framework and Diving in the FrontEnd field**
+
+<h3 align="left">Connect with me:</h3>
+<p align="left">
+</p>
+
