@@ -1,0 +1,11 @@
+<div>
+  {% if request.user.is_authenticated %}
+    <h1>
+    You're A User
+  </h1>
+  {% else %}
+   <h1>
+    You're A Anon
+  </h1>
+  {% endif %}
+</div>
