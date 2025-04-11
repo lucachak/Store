@@ -5,11 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Saas{% endblock title %}</title>
-    <link href="{% static 'Css/style.css' %}" rel="stylesheet">
-    
-    {% block links %}
-    {% endblock links %}
-
+    {% include 'Components/links.html' %}
   </head>
   <body>
     {% include 'Components/messages.html' %}
@@ -25,7 +21,8 @@
     {% endblock lower %}
 
     {% include 'Components/footer.html' %}
-    {% include 'Components/loader.html' %}   
+    {% include 'Components/loader.html' %}
+       
     {% include 'Components/scripts.html' %}
   </body>
 </html>

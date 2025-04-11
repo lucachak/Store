@@ -1,10 +1,13 @@
 {% extends 'base.html'%}
 {% load static %}
 {% block title %} Home - {{ block.super }}  {% endblock title%}
+{% block links %} {{ block.super }} {% endblock links %}
 
 {% block content %}
-<h1>
-  total count now is  {{ user_visits }}
-</h1>
+<div class="mt-2">
+  <h1>
+    total count now is  {{ user_visits }}
+  </h1>
+</div>
 
 {% endblock content %}
