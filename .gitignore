@@ -1,3 +1,9 @@
+# files to be ignores 
+/Store/Static/Vendors
+
+
+/Store/local-cdn/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
