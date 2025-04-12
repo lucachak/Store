@@ -15,6 +15,8 @@ else:
     pass
 
 
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -102,12 +104,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 #Django Allauth
-ACCOUNT_SIGNUP_FIELDS = {'email*'}
-ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = { 'email*', 'password1*', 'password2*'}
+ACCOUNT_LOGIN_METHODS = {'email',}
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 EMAIL_REQUIRED = True
 LOGIN_REDIRECT_URL = '/'
-
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[Saas]"
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -116,6 +119,21 @@ AUTHENTICATION_BACKENDS = [
     # `allauth` specific authentication methods, such as login by email
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+#email config
+EMAIL_HOST = config('EMAIL_HOST',cast=str, default='smtp.gmail.com' )
+EMAIL_PORT = config('EMAIL_PORT', cast=str, default='587')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast=bool, default=False)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str, default=None)
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str, default=None)
+
+ADMINS=[('Lucas','jorgesmiths711@gmail.com')]
+MANAGERS=ADMINS
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
