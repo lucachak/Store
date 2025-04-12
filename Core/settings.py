@@ -102,9 +102,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 #Django Allauth
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_SIGNUP_FIELDS = {'email*'}
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 EMAIL_REQUIRED = True
 LOGIN_REDIRECT_URL = '/'
+
+
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
