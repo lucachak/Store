@@ -14,6 +14,8 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+.env
+
 bin/
 build/
 develop-eggs/
@@ -27,7 +29,7 @@ var/
 .installed.cfg
 *.egg
 .eggs
-.env
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt

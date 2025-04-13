@@ -2,6 +2,14 @@ from pathlib import Path
 from decouple import config 
 import os 
 
+"""
+MAIN CONFIG FILE, MEANING THAT ALL THE ACCOUNT, URL, TEMPLATE ETC... CONFIG ARE LOCATED HERE. 
+
+SOME CONFIGS ARE PULLED FROM A .ENV 
+"""
+
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -17,6 +25,8 @@ else:
 
 
 
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -27,9 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Apps 
+    # Internal Apps 
     'Home',
     'Auth',
+    
+    # External Apps
     "allauth_ui",
     "allauth",
     "allauth.account",
@@ -114,7 +126,7 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 EMAIL_REQUIRED = True
 LOGIN_REDIRECT_URL = '/'
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[Saas]"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[SaaS] "
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -148,7 +160,7 @@ EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast=bool, default=False)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str, default=None)
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str, default=None)
 
-ADMINS=[('Joao','joaoluizgomesdasilva7@gmail.com')]
+ADMINS=config('ADMINS', cast=list, default=None)
 MANAGERS=ADMINS
 
 
