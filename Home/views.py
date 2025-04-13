@@ -7,7 +7,7 @@ from .models import *
 
 class HomeView(View):
     def get(self, request):
-        UsersCount.objects.create()
+        #UsersCount.objects.create()
         user_visits = UsersCount.objects.all().count() 
 
         context = {'user_visits' : user_visits}
