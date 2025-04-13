@@ -131,7 +131,7 @@ EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast=bool, default=False)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str, default=None)
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str, default=None)
 
-ADMINS=[('Lucas','jorgesmiths711@gmail.com')]
+ADMINS=[('Joao','joaoluizgomesdasilva7@gmail.com')]
 MANAGERS=ADMINS
 
 
