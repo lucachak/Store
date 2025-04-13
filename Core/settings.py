@@ -30,12 +30,13 @@ INSTALLED_APPS = [
     # Apps 
     'Home',
     'Auth',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.github',
-    'allauth.socialaccount.providers.linkedin_oauth2',
+    "allauth_ui",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.github",
+    "widget_tweaks",
+    "slippers",
 ]
 
 
@@ -67,6 +68,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            "builtins": ["slippers.templatetags.slippers"],
         },
     },
 ]
@@ -120,6 +122,9 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+#django allauth ui 
+ALLAUTH_UI_THEME = "light"
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
@@ -155,7 +160,8 @@ STATIC_URL = 'static/'
 STATICFILES_BASE_DIR = BASE_DIR/"Static"
 STATICFILES_VENDORS_DIR = STATICFILES_BASE_DIR/"Vendors"
 STATICFILES_DIRS = [
-    STATICFILES_BASE_DIR
+    BASE_DIR/"Static",
+    os.path.join(BASE_DIR,"Static"),
 ]
 
 STATIC_ROOT = BASE_DIR/"local-cdn"

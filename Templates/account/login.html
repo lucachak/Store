@@ -1,0 +1,100 @@
+{% extends "account/login.html" %}
+{% load i18n %}
+{% load allauth_ui %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'allauth_ui/output.css' %}">
+<link rel="stylesheet" href="{% static 'Vendors/flowbite.min.css' %}">
+
+{% endblock extra_head %}
+
+<body class="min-h-screen bg-base-300">
+    {% block body %}
+        {% if messages %}
+            {% for message in messages %}
+                <div role="alert"
+                     class="text-sm md:text-base alert alert-{{ message.tags }}">
+                    <span><strong>{{ message }}</strong></span>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+{% include 'Components/navbar.html' %}
+{% block content %}
+
+    {% trans "Sign In" as heading %}
+    {% #container heading=heading  %}
+    {% if not SOCIALACCOUNT_ONLY %}
+        <div class="py-3">
+            {% blocktranslate %}If you have not created an account yet, then please
+            <a class="link" href="{{ signup_url }}">sign up</a> first.{% endblocktranslate %}
+        </div>
+        {% url 'account_login' as action_url %}
+        {% #form form=form url=action_url button_text=heading %}
+        {% if form.remember %}
+        <div class="items-start my-2 form-control">
+            <label class="cursor-pointer label">
+                {% render_field form.remember class="checkbox checkbox-accent" %}
+                <span class="ml-2 label-text">{% trans "Remember me" %}</span>
+            </label>
+        </div>
+        {% endif %}
+        {{ redirect_field }}
+        {% csrf_token %}
+        <div class="flex flex-col">
+            <a class="link self-end text-sm"
+               href="{% url "account_reset_password" %}">{% trans "Forgot password?" %}</a>
+        </div>
+        {% /form %}
+    {% endif %}
+    {% if LOGIN_BY_CODE_ENABLED %}
+        <div class="divider divider-neutral"></div>
+        <a href="{{ request_login_code_url }}" class="btn btn-neutral">{% trans "Mail me a sign-in code" %}</a>
+    {% endif %}
+    {% if SOCIALACCOUNT_ENABLED %}
+        {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+    {% endif %}
+    {% /container %}
+
+
+{% endblock content %}
+<div class="mx-auto [&_a]:link text-sm flex flex-col md:flex-row items-center justify-center gap-3 mt-3">
+    {% if user.is_authenticated %}
+        {% url 'account_email' as email_url %}
+        {% if email_url %}
+            <a href="{{ email_url }}">{% trans "Change Email" %}</a>
+        {% endif %}
+        {% url 'account_change_password' as change_password_url %}
+        {% if change_password_url %}
+            <a href="{{ change_password_url }}">{% trans "Change Password" %}</a>
+        {% endif %}
+        {% url 'mfa_index' as mfa_url %}
+        {% if mfa_url %}
+            <a href="{{ mfa_url }}">{% trans "Two-Factor Authentication" %}</a>
+        {% endif %}
+        {% url 'usersessions_list' as usersessions_list_url %}
+        {% if usersessions_list_url %}
+            <a href="{{ usersessions_list_url }}">{% trans "Sessions" %}</a>
+        {% endif %}
+        {% url 'account_logout' as logout_url %}
+        {% if logout_url %}
+            <a href="{{ logout_url }}">{% trans "Sign Out" %}</a>
+        {% endif %}
+    {% else %}
+        {% url 'account_login' as login_url %}
+        {% if login_url %}
+            <a href="{{ login_url }}">{% trans "Sign In" %}</a>
+        {% endif %}
+        {% url 'account_signup' as signup_url %}
+        {% if signup_url %}
+            <a href="{{ signup_url }}">{% trans "Sign Up" %}</a>
+        {% endif %}
+    {% endif %}
+</div>
+
+{% endblock body %}
+{% block extra_body %}
+{% endblock extra_body %}
+</body>
