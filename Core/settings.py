@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.github",
+    "allauth.socialaccount.providers.google",
     "widget_tweaks",
     "slippers",
 ]
@@ -105,7 +106,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-#Django Allauth
+#   Django Allauth
+
 ACCOUNT_SIGNUP_FIELDS = { 'email*', 'password1*', 'password2*'}
 ACCOUNT_LOGIN_METHODS = {'email',}
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
@@ -122,11 +124,21 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-#django allauth ui 
+SOCIALACCOUNT_PROVIDERS = {
+    'github': {
+        "VERIFIED_EMAIL":True,
+    },
+    'google':{
+        'VERIFIED_EMAIL':True,
+    }
+}
+
+#   django allauth ui 
 ALLAUTH_UI_THEME = "light"
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 #email config
 EMAIL_HOST = config('EMAIL_HOST',cast=str, default='smtp.gmail.com' )

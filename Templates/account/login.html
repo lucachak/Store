@@ -12,14 +12,7 @@
 
 <body class="min-h-screen bg-base-300">
     {% block body %}
-        {% if messages %}
-            {% for message in messages %}
-                <div role="alert"
-                     class="text-sm md:text-base alert alert-{{ message.tags }}">
-                    <span><strong>{{ message }}</strong></span>
-                </div>
-            {% endfor %}
-        {% endif %}
+    {% include 'Components/messages.html' %}
         
 {% include 'Components/navbar.html' %}
 {% block content %}
@@ -96,5 +89,6 @@
 
 {% endblock body %}
 {% block extra_body %}
+    {% include 'Components/scripts.html' %}
 {% endblock extra_body %}
 </body>
