@@ -7,9 +7,10 @@
     <title>{% block title %}Saas{% endblock title %}</title>
     {% include 'Components/links.html' %}
   </head>
-  <body>
+  <body class="bg-white border-gray-200 dark:bg-gray-900">
     {% include 'Components/messages.html' %}
     {% include 'Components/navbar.html'%}
+    {% include 'Components/sidebar.html' %}
 
 
     {% block top %}
