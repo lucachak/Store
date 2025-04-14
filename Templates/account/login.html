@@ -5,7 +5,7 @@
 {% load static %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'allauth_ui/output.css' %}">
+<link rel="stylesheet" href="{% static 'Css/output.css' %}">
 <link rel="stylesheet" href="{% static 'Vendors/flowbite.min.css' %}">
 
 {% endblock extra_head %}
@@ -14,8 +14,10 @@
     {% block body %}
     {% include 'Components/messages.html' %}
         
-{% include 'Components/navbar.html' %}
-{% block content %}
+    {% block top %}
+    {% endblock top %}
+
+    {% block content %}
 
     {% trans "Sign In" as heading %}
     {% #container heading=heading  %}

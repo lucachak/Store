@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     "widget_tweaks",
     "slippers",
+    "django_browser_reload",
 ]
 
 
@@ -74,6 +75,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     "allauth.account.middleware.AccountMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 ROOT_URLCONF = 'Core.urls'
@@ -154,7 +156,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 #   django allauth ui 
-ALLAUTH_UI_THEME = "light"
+ALLAUTH_UI_THEME = "forest"
 
 
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

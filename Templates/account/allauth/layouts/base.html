@@ -27,8 +27,9 @@
                     </div>
                 {% endfor %}
             {% endif %}
-
-            {% include 'Components/navbar.html' %}
+            
+            {% block top %}
+            {% endblock top %}
             
             {% block content %}
             {% endblock content %}
