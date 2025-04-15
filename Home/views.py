@@ -8,8 +8,11 @@ from .models import *
 # display the home content
 class HomeView(View):
     def get(self, request):
-        #UsersCount.objects.create()
-        user_visits = UsersCount.objects.all().count() 
+        field_name = 'counter'
+        obj = UsersCount.objects.first()
+        user_visits = getattr(obj, field_name) + 1
+        UsersCount.objects.update(counter=user_visits) 
+
 
         context = {'user_visits' : user_visits}
         return render(request, "Home/home.html", context)

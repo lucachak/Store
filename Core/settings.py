@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "unfold.contrib.import_export",  # optional, if django-import-export package is used
     "unfold.contrib.guardian",  # optional, if django-guardian package is used
     "unfold.contrib.simple_history",
+    "crispy_forms",
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -174,6 +175,11 @@ ADMINS=config('ADMINS', cast=list, default=None)
 MANAGERS=ADMINS
 
 
+# Django unfold
+CRISPY_TEMPLATE_PACK = "unfold_crispy"
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -199,6 +205,7 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = BASE_DIR/"local-cdn"
+#STATIC_ROOT = BASE_DIR/"Static"
 
 MEDIA_ROOT =  os.path.join(BASE_DIR, 'Media')
 MEDIA_URL = 'Media/'

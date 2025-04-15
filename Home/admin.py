@@ -4,6 +4,10 @@ from .models import *
 # Register your models here.
 
 
+
+
 @admin.register(UsersCount)
 class UserCount(ModelAdmin):
     pass
+
+
