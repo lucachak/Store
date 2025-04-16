@@ -60,12 +60,17 @@ INSTALLED_APPS = [
     "widget_tweaks",
     "slippers",
     "django_browser_reload",
+
+    "whitenoise.runserver_nostatic",
 ]
 
 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -110,6 +115,13 @@ DATABASES = {
     }
 }
 
+STORAGES = {
+    # ...
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -130,12 +142,15 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 #   Django Allauth
+SITE_ID = 1
 
 ACCOUNT_SIGNUP_FIELDS = { 'email*', 'password1*', 'password2*'}
 ACCOUNT_LOGIN_METHODS = {'email',}
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 EMAIL_REQUIRED = True
 LOGIN_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[SaaS] "
 
@@ -195,17 +210,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-
+STATIC_URL = 'Static/'
 STATICFILES_BASE_DIR = BASE_DIR/"Static"
+
 STATICFILES_VENDORS_DIR = STATICFILES_BASE_DIR/"Vendors"
+
 STATICFILES_DIRS = [
     BASE_DIR/"Static",
-    os.path.join(BASE_DIR,"Static"),
 ]
 
 STATIC_ROOT = BASE_DIR/"local-cdn"
-#STATIC_ROOT = BASE_DIR/"Static"
 
 MEDIA_ROOT =  os.path.join(BASE_DIR, 'Media')
 MEDIA_URL = 'Media/'
