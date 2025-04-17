@@ -1,3 +1,3 @@
-bind = "127.0.0.1:8000"
+bind = "192.168.1.9:8000"
 workers = 6
 master=False

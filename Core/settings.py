@@ -6,6 +6,11 @@ import os
 MAIN CONFIG FILE, MEANING THAT ALL THE ACCOUNT, URL, TEMPLATE ETC... CONFIG ARE LOCATED HERE. 
 
 SOME CONFIGS ARE PULLED FROM A .ENV 
+
+CHANGED SOME LINES FROM THEME TO MATCH THE FOREST THEME FORM FROM ALLAUTH UI. 
+
+LOCAL => VENDORS 
+
 """
 
 
@@ -142,15 +147,21 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 #   Django Allauth
-SITE_ID = 1
 
 ACCOUNT_SIGNUP_FIELDS = { 'email*', 'password1*', 'password2*'}
 ACCOUNT_LOGIN_METHODS = {'email',}
+
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
 EMAIL_REQUIRED = True
+
+
 LOGIN_REDIRECT_URL = '/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_SESSION_REMEMBER = True
+
+
+
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[SaaS] "
 
@@ -175,8 +186,8 @@ SOCIALACCOUNT_PROVIDERS = {
 ALLAUTH_UI_THEME = "forest"
 
 
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 #email config
 EMAIL_HOST = config('EMAIL_HOST',cast=str, default='smtp.gmail.com' )
@@ -212,7 +223,6 @@ USE_TZ = True
 
 STATIC_URL = 'Static/'
 STATICFILES_BASE_DIR = BASE_DIR/"Static"
-
 STATICFILES_VENDORS_DIR = STATICFILES_BASE_DIR/"Vendors"
 
 STATICFILES_DIRS = [
