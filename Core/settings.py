@@ -118,6 +118,16 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
+
+
+        #'default': {
+        #    'ENGINE': 'django.db.backends.mysql',
+        #    'NAME': config('DATABASE_NAME', default=None, cast=str),
+        #    'USER': config('DATABASE_USER', default=None, cast=str),
+        #    'PASSWORD': config('DATABASE_PASSWD', default=None, cast=str),
+        #    'HOST': config('DATABASE_HOST', default='localhost', cast=str),
+        #    'PORT': config('DATABASE_PORT', default=3306, cast=str),
+        #}
 }
 
 STORAGES = {
@@ -147,6 +157,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 #   Django Allauth
+SITE_ID = 1
 
 ACCOUNT_SIGNUP_FIELDS = { 'email*', 'password1*', 'password2*'}
 ACCOUNT_LOGIN_METHODS = {'email',}
@@ -156,8 +167,8 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 EMAIL_REQUIRED = True
 
 
-LOGIN_REDIRECT_URL = '/'
-ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'http://127.0.0.1:8000'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'http://127.0.0.1:8000'
 ACCOUNT_SESSION_REMEMBER = True
 
 
@@ -175,9 +186,23 @@ AUTHENTICATION_BACKENDS = [
 
 SOCIALACCOUNT_PROVIDERS = {
     'github': {
+        'APP': {
+            'client_id':config('oauth_git_Cid'),
+            'secret':config('oauth_git_Sec'),
+        },
+        'AUTH_PARAMS':{
+            'prompt':'consent',
+        },
         "VERIFIED_EMAIL":True,
     },
+
+
+
     'google':{
+        'APP':{
+            'client_id':config('GOOGLE_ID'),
+            'secret':config('GOOGLE_SEC')
+        },
         'VERIFIED_EMAIL':True,
     }
 }
@@ -186,8 +211,8 @@ SOCIALACCOUNT_PROVIDERS = {
 ALLAUTH_UI_THEME = "forest"
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 #email config
 EMAIL_HOST = config('EMAIL_HOST',cast=str, default='smtp.gmail.com' )

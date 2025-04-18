@@ -8,9 +8,14 @@ from .models import *
 # display the home content
 class HomeView(View):
     def get(self, request):
-        field_name = 'counter'
-        obj = UsersCount.objects.first()
-        user_visits = getattr(obj, field_name) + 1
+        try:
+            field_name = 'counter'
+            obj = UsersCount.objects.first()
+            user_visits = getattr(obj, field_name) + 1
+        except:
+            user_visits = 1 
+            UsersCount.objects.create(counter=user_visits)
+
         UsersCount.objects.update(counter=user_visits) 
 
 

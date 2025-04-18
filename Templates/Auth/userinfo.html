@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+</head>
+<body>
+    <h1>Welcome to Your Profile</h1>
+
+    {% if user.is_authenticated %}
+        <p>Hello, {{ username }}!</p>
+        <p>Your User ID is: {{ user_id }}</p>
+        <p>Your email address is: {{ email }}
+    
+    {% else %}
+        <p>Hello, not logged!</p>
+        <p>Your User ID is:not logged</p>
+        <p>Your email address is: not logged
+    {% endif %}
+
+    </body>
+</html>

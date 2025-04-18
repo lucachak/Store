@@ -4,5 +4,5 @@ from . import views as v
 
 urlpatterns = [
     path('',v.HomeView.as_view(),name="home"),
-    path('protect/',login_required(v.ProtectedView.as_view()),name="protected")
+    path('protected/',login_required(v.ProtectedView.as_view()),name="protected")
 ]

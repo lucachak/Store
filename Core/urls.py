@@ -17,12 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.urls import path,include
+from django.contrib.auth.decorators import login_required
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include("Home.urls")),
-    path('Auth/', include("Auth.urls")),
+    path('auth/', login_required(include("Auth.urls"))),
     path('accounts/', include('allauth.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
     
