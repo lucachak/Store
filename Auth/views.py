@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
 from django.views import View
 
 
@@ -6,6 +8,7 @@ from django.views import View
 
 class UserView(View):
 
+    @login_required
     def get(self, request, *args, **kwargs):
         context_manager = {}
         return render(request, 'Auth/userview.html', context_manager)
