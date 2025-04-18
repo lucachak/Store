@@ -1,16 +1,26 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-
+from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
 from django.views import View
+from django.contrib.auth import get_user_model
+
+LOGIN_URL = settings.LOGIN_REDIRECT_URL
+User = get_user_model()
 
 
 # Create your views here.
 
 class UserView(View):
 
-    @login_required
-    def get(self, request, *args, **kwargs):
-        context_manager = {}
+    def get(self, request, username=None, *args, **kwargs):
+        profile_obj = get_object_or_404(User,username=username)
+        
+
+        context_manager = {
+            "user":profile_obj,
+            "is_me":True if profile_obj == request.user else False,
+        }
         return render(request, 'Auth/userview.html', context_manager)
 
 
@@ -18,6 +28,7 @@ class UserView(View):
         context_manager = {}
 
         pass
+
 
 class UserInfoView(View):
 
@@ -57,6 +68,8 @@ class UserInfoView(View):
 
 class StaffView(View):
 
+
+    @staff_member_required(login_url=LOGIN_URL)
     def get(self, request, *args, **kwargs):
         context_manager = {}
         return render(request, 'Auth/staffview.html', context_manager)
