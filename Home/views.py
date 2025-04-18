@@ -7,7 +7,7 @@ from .models import *
 
 # display the home content
 class HomeView(View):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         try:
             field_name = 'counter'
             obj = UsersCount.objects.first()
@@ -22,7 +22,4 @@ class HomeView(View):
         context = {'user_visits' : user_visits}
         return render(request, "Home/home.html", context)
 
-#simple protected view
-class ProtectedView(View):
-    def get(self,request):
-       return render(request, "Home/protected.html")
+
