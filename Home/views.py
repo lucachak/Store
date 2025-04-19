@@ -8,6 +8,7 @@ from .models import *
 # display the home content
 class HomeView(View):
     def get(self, request, *args, **kwargs):
+        # add to the main counter the number of access on the main page
         try:
             field_name = 'counter'
             obj = UsersCount.objects.first()
