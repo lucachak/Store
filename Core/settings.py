@@ -179,9 +179,6 @@ SITE_ID = 1
 
 ACCOUNT_SIGNUP_FIELDS = { 'email*', 'password1*', 'password2*'}
 ACCOUNT_LOGIN_METHODS = {'email',}
-
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-
 EMAIL_REQUIRED = True
 
 
@@ -190,9 +187,9 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_SESSION_REMEMBER = True
 
 
-
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[SaaS] "
+
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`

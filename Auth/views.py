@@ -10,7 +10,6 @@ User = get_user_model()
 
 
 # Create your views here.
-
 class UserView(View):
 
     def get(self, request, username=None, *args, **kwargs):
@@ -26,7 +25,6 @@ class UserView(View):
 
     def post(self,request):
         context_manager = {}
-
         pass
 
 
@@ -43,6 +41,7 @@ class UserInfoView(View):
                 'user_id': user_id,
                 'username': username,
                 'email':email,
+                #'perm': request.user.has_perm()
             }
         except:
             context_manager = {
