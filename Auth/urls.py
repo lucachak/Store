@@ -10,4 +10,6 @@ urlpatterns = [
 
     path('staffView/', staff_member_required(v.StaffView.as_view()), name='staff_view'),
     path('adminView/',staff_member_required(v.AdminView.as_view()), name="admin_view"),
+
+    path('profileList/',v.ProfileListView.as_view(), name="profile_list")
 ]

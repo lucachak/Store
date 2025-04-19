@@ -212,7 +212,6 @@ SOCIALACCOUNT_PROVIDERS = {
     },
 
 
-
     'google':{
         'APP':{
             'client_id':config('GOOGLE_ID'),
@@ -236,7 +235,6 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)
 EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast=bool, default=False)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str, default=None)
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str, default=None)
-
 ADMINS=config('ADMINS', cast=list, default=None)
 MANAGERS=ADMINS
 
