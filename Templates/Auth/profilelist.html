@@ -19,13 +19,16 @@
 {% block content %}
 <div class="p-4 sm:ml-64">
    <div class="p-4 border-2 border-stone-200 border-dashed rounded-lg dark:border-stone-700 mt-14">
- 
-  {% for instance in object_list %}
+    {% if perms.auth %}
+      {% if perms.auth.view_user %}
+        {% for instance in object_list %}
+          <li class="text-white"><a href="/auth/userView/{{ instance.username }}">{{ instance.username }}</a></li>
+          {% endfor%}
+      {% else %}
+      <h1 class="text-white"> You're not allowed to see it !</h1>
 
-<li class="text-white"><a href="/auth/userView/{{ instance.username }}">{{ instance.username }}</a></li>
-  
-  {% endfor%}
-  </div>
-
+      {% endif %}
+    {% endif %}
+      </div>
 </div>
 {% endblock content %}

@@ -6,18 +6,24 @@
     <title>User Profile</title>
 </head>
 <body>
-  <h1>Welcome to Your Profile as </h1>
+  <h1>Welcome to Your Profile {{ instance.username }} {{ instance.email }} </h1>
 
-    {% if user.is_authenticated %}
-        <p>Hello, {{ username }}!</p>
-        <p>Your User ID is: {{ user_id }}</p>
-        <p>Your email address is: {{ email }}
-    
-    {% else %}
-        <p>Hello, not logged!</p>
-        <p>Your User ID is:not logged</p>
-        <p>Your email address is: not logged
+    {% if parms.auth or is_me %}
+    {% if perms.auth.view_user or is_me %}
+
+    <div class="p-4 sm:ml-64">
+        <div class="p-4 border-2 border-stone-200 border-dashed rounded-lg dark:border-stone-700 mt-14">
+            <div class="text-black"> 
+                {{ instance.first_name }} - {{ instance.last_name}}
+                {{ instance.last_login }}
+
+                {{ is_me }}
+            </div>
+
+            
+        </div>
+    </div>    
     {% endif %}
-
+    {% endif %}
     </body>
 </html>

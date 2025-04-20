@@ -33,49 +33,18 @@ class UserView(View):
 
 class UserInfoView(View):
 
-    def get(self, request, *args, **kwargs):
-        context_manager = {}
+    def get(self, request,username=None, *args, **kwargs):
         user = request.user
+        profile_user_obj = get_object_or_404(User, username=username)
+        is_me = profile_user_obj == user
 
-        print(
-            #<app_label>.view_<model_name>
-            
-            # Home.view_usercount
-
-            #<app_label>.change_<model_name>
-            #<app_label>.add_<model_name>
-            #<app_label>.delete_<model_name>
-            # check user's permission 
-            user.has_perm("auth.view_user")
-        )
-
-
-        try:
-            
-            user_id = request.user.id
-            username = request.user.username
-            email = request.user.email
-            context_manager = {
-                'user_id': user_id,
-                'username': username,
-                'email':email,
-            }
-        except:
-            context_manager = {
-                'user_id': 'AnonUser',
-                'username': 'Undefined',
-                'email':'Undefined',
-            }
-
-        else:
-            email = request.user.email
-            user_id = request.user.id
-            context_manager = {
-                'user_id': user_id,
-                'username': 'undefined',
-                'email':email,
-            }
-            return render(request, "Auth/userinfo.html", context_manager)
+        context = {
+            "object":profile_user_obj,
+            "instance":profile_user_obj,
+            "is_me":is_me,
+        }
+        
+        return render(request, "Auth/userinfo.html", context)
 
     
     def post(self, request, *args, **kwargs):
