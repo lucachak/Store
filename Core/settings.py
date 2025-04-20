@@ -29,6 +29,9 @@ LOCAL => VENDORS
     * THAT ARE NOT AS IMPORTANT AS THE CORE("base.html") BUT WILL BE USED THROUGHOUT THE SITE 
 
     * WHEN NAMING OR CREATING A FILE *.html IT CANNOT BE UPPERCASE
+
+    [RESTRUCTURING THE TEMPLATES FOLDER...]
+    
 """
 
 
@@ -72,6 +75,7 @@ INSTALLED_APPS = [
     # Internal Apps 
     'Home',
     'Auth',
+    'Subscription',
     
     # External Apps
     "allauth_ui",

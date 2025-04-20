@@ -5,11 +5,37 @@ from django.contrib.admin.views.decorators import staff_member_required
 from . import views as v 
 
 urlpatterns = [
-    path('userInfo/<str:username>',login_required(v.UserInfoView.as_view()), name="user_info"),
-    path('userView/<str:username>', login_required(v.UserView.as_view()), name="user_view"),
+    
+    #Users section
+    path('users/',
+        login_required(
+            v.UserListView.as_view()
+            ),
+        name="users"),
+    
+    path('usersActive/',
+        login_required(
+            v.UserActiveListView.as_view()
+            ),
+        name="active_users_view"),
 
-    path('staffView/', staff_member_required(v.StaffView.as_view()), name='staff_view'),
+    path('usersDetails/<str:username>/',
+        login_required(
+            v.UserDetailsView.as_view()
+            ),
+        name="users_info_view"),
+
+
+
+    #Staff section
+    path('staff/',
+        staff_member_required(v.StaffView.as_view()),
+        name='staff_view'),
+    path('staffDetail/<str:username>',
+        staff_member_required(v.StaffView.as_view()), 
+        name='staff_view'),
+
+
+    #Admin section
     path('adminView/',staff_member_required(v.AdminView.as_view()), name="admin_view"),
-
-    path('profileList/',staff_member_required(v.ProfileListView.as_view()), name="profile_list")
 ]

@@ -9,9 +9,94 @@ LOGIN_URL = settings.LOGIN_REDIRECT_URL
 User = get_user_model()
 
 
-# Create your views here.
-class UserView(View):
+# Create your views here. 
 
+# generate a list of ALL Users
+class UserListView(View):
+    def get(self,request, *args, **kwargs):
+        context = {
+            "object_list":User.objects.all()
+        }
+
+        return render(request, "Auth/User/user-list.html", context)    
+
+    def post(self,request):
+        context_manager = {}
+        pass
+
+
+# generate a list of Active Users
+class UserActiveListView(View):
+    def get(self, request, *args, **kwargs):
+        context = {
+            "object_list":User.objects.filter(is_active=True)
+        }
+
+        return render(request, "Auth/User/active-users.html", context)
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+
+
+# generate the SPECIFIC user's details
+class UserDetailsView(View):
+
+    def get(self, request,username=None, *args, **kwargs):
+
+
+        user = request.user
+        user_groups = user.groups.all()
+        print(user_groups)
+
+        if user.groups.filter(name__contains="basic").exists():
+            print("cu")
+
+        profile_user_obj = get_object_or_404(User, username=username)
+        is_me = profile_user_obj == user
+
+        context = {
+            "object":profile_user_obj,
+            "instance":profile_user_obj,
+            "is_me":is_me,
+        }
+        
+        return render(request, "Auth/User/user-details.html", context)
+
+    
+    def post(self, request, *args, **kwargs):
+        context_manager = {}
+        
+        pass
+
+# generate the Staffs views/list
+class StaffView(View):
+
+    @staff_member_required(login_url=LOGIN_URL)
+    def get(self, request, *args, **kwargs):
+        context_manager = {}
+        return render(request, 'Auth/Staff/staff-view.html', context_manager)
+
+
+    def post(self,request):
+        context_manager = {}
+
+        pass
+
+class AdminView(View):
+
+    def get(self, request, *args, **kwargs):
+        context_manager = {}
+        return render(request, 'Auth/User/admin-view.html', context_manager)
+
+
+    def post(self,request):
+        context_manager = {}
+
+        pass
+
+
+class ProfileListView(View):
     def get(self, request, username=None, *args, **kwargs):
         profile_obj = get_object_or_404(User,username=username)
         user = request.user
@@ -24,65 +109,3 @@ class UserView(View):
             "is_me":True if profile_obj == request.user else False,
         }
         return render(request, 'Auth/userview.html', context_manager)
-
-
-    def post(self,request):
-        context_manager = {}
-        pass
-
-
-class UserInfoView(View):
-
-    def get(self, request,username=None, *args, **kwargs):
-        user = request.user
-        profile_user_obj = get_object_or_404(User, username=username)
-        is_me = profile_user_obj == user
-
-        context = {
-            "object":profile_user_obj,
-            "instance":profile_user_obj,
-            "is_me":is_me,
-        }
-        
-        return render(request, "Auth/userinfo.html", context)
-
-    
-    def post(self, request, *args, **kwargs):
-        context_manager = {}
-        
-        pass
-
-class StaffView(View):
-
-
-    @staff_member_required(login_url=LOGIN_URL)
-    def get(self, request, *args, **kwargs):
-        context_manager = {}
-        return render(request, 'Auth/staffview.html', context_manager)
-
-
-    def post(self,request):
-        context_manager = {}
-
-        pass
-
-class AdminView(View):
-
-    def get(self, request, *args, **kwargs):
-        context_manager = {}
-        return render(request, 'Auth/adminview.html', context_manager)
-
-
-    def post(self,request):
-        context_manager = {}
-
-        pass
-
-
-class ProfileListView(View):
-    def get(self,request, *args, **kwargs):
-        context = {
-            "object_list":User.objects.filter(is_active=True)
-        }
-
-        return render(request, "Auth/profilelist.html", context)

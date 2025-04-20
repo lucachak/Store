@@ -6,10 +6,17 @@
     <title>User Profile</title>
 </head>
 <body>
+    {% if is_me %}
     <h1>Welcome to Your Profile {{ user }} #{{ user.id}}</h1>
+    {% else %}
+    <h1>Welcome to {{ instance.username }}'s Profile, {{ user }}</h1>
+    {% endif %}
 
+    <h2> {{ instance.username }} </h2>
+    <h2> {{ instance.email }} - {{ instance.last_login }}</h2>
+    <h2> {{ instance. }}</h2>
 
-    <h2> is me {{is_me}}</h2>
+    
 
     </body>
 </html>
