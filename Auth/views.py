@@ -46,11 +46,11 @@ class UserDetailsView(View):
 
 
         user = request.user
-        user_groups = user.groups.all()
-        print(user_groups)
-
-        if user.groups.filter(name__contains="basic").exists():
-            print("cu")
+        print(
+            user.has_perm("Subscription.basic"),
+            user.has_perm("Subscription.pro"),
+            user.has_perm("Subscription.advanced"),
+            )
 
         profile_user_obj = get_object_or_404(User, username=username)
         is_me = profile_user_obj == user

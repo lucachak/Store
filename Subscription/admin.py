@@ -6,3 +6,7 @@ from .models import *
 @admin.register(Subscription)
 class Subscription(ModelAdmin):
     pass
+
+@admin.register(UserSubscription)
+class Subscription(ModelAdmin):
+    pass 
