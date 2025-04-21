@@ -21,3 +21,14 @@ def create_customer(name:str="", email:str="", metadata:dict={}, raw:bool=False)
         return response
     stripe_id = response.id
     return stripe_id
+
+
+def create_product(name:str="", metadata:dict={}, raw:bool=False):
+    response = stripe.Product.create(
+        name=name,
+        metadata=metadata,
+    )
+    if raw:
+        return response
+    stripe_id = response.id
+    return stripe_id
