@@ -1,0 +1,23 @@
+import stripe
+from decouple import config 
+
+
+if config('DEBUG',default=False,cast=bool):
+    stripe.api_key = config('STRIPE_TEST_SEC_KEY',default="",cast=str)
+else:
+    stripe.api_key = config('STRIPE_LIVE_SEC_KEY',default="",cast=str)
+
+if "sk_test" in stripe.api_key and not config('DEBUG',default=False,cast=bool):
+    raise ValueError("Invalid credentials")
+
+def create_customer(name:str="", email:str="", metadata:dict={}, raw:bool=False):
+    response = stripe.Customer.create(
+        name=name,
+        email=email,
+        metadata=metadata
+    )
+
+    if raw:
+        return response
+    stripe_id = response.id
+    return stripe_id

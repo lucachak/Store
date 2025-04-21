@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'Home',
     'Auth',
     'Subscription',
+    'Customers',
     
     # External Apps
     "allauth_ui",
