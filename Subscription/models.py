@@ -22,6 +22,7 @@ class Subscription(models.Model):
     
     # fields for subscriptions    
     name = models.CharField(max_length=120)
+    subtitle = models.TextField(blank=True, null=True)
     active = models.BooleanField(default=True)
     groups = models.ManyToManyField(Group)
     permission = models.ManyToManyField(
@@ -35,10 +36,24 @@ class Subscription(models.Model):
     stripe_id = models.CharField(max_length=120, blank=True, null=True)
 
 
+    order = models.IntegerField(default=-1, help_text='Ordering on Django pricing page' ,name='order')
+    featured = models.BooleanField(default=True, help_text='Featured on Django pricing page')
+    updated = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    features = models.TextField(help_text="Features for pricing, seperated by new line", blank=True, null=True)
+    
     #methods from the class subscription
     class Meta:
+        ordering = [
+         'order', 'featured', '-updated']
         permissions =  SUBSCRIPTION_PERMISSIONS
     
+    
+    def display_features_list(self):
+        if not self.features:
+            return [] 
+        return [ x.strip() for x in self.features.split('\n') ]
+
     def save(self, *args, **kwargs):
         if not self.stripe_id:
             stripe_id = Core.billing.create_product(
@@ -53,7 +68,7 @@ class Subscription(models.Model):
             self.stripe_id = stripe_id
 
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return f"{self.name}"
 
@@ -79,9 +94,11 @@ class SubscriptionPrice(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = [#'subscription__order',
+        ordering = ['subscription__order',
          'order', 'featured', '-updated']
 
+    def __str__(self):
+        return f"{(self.interval).upper()}LY {self.subscription} subscription costing {self.price}$"
     def get_checkout_url(self):
         return reverse("sub-price-checkout", 
             kwargs = {"price_id": self.id}  
@@ -91,7 +108,7 @@ class SubscriptionPrice(models.Model):
     def display_features_list(self):
         if not self.subscription:
             return []
-        return self.subscription.get_features_as_list()
+        else:return self.subscription.display_features_list()
     
     @property
     def display_sub_name(self):

@@ -23,8 +23,7 @@ urlpatterns = [
     path('',include("Home.urls")), # Home App handles it
     path('auth/', include("Auth.urls")), # Auth app handles it 
     path('accounts/', include('allauth.urls')), # AllAuth external handles part of it
-    
-    
+    path('subscription/',include('Subscription.urls')), # Subscription app handles it 
     
     path("__reload__/", include("django_browser_reload.urls")), # skip
     

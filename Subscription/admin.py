@@ -10,6 +10,7 @@ class SubscriptionPrice(TabularInline):
     can_delete = False
     extra = 0
 
+
 class SubscriptionAdmin(ModelAdmin):
     inlines = [SubscriptionPrice]
     list_display = ['name', 'active']
@@ -21,4 +22,7 @@ class UserSubscription(ModelAdmin):
 
 
 admin.site.register(Subscription,SubscriptionAdmin)
+#admin.site.register(UserSubscription)
+
+
 
