@@ -4,6 +4,7 @@ from django.contrib.auth.models import Group, Permission
 from django.db.models.signals import post_save
 from django.conf import settings 
 from django.contrib import admin
+from django.urls import reverse
 import Core.billing 
 # Create your models here.
 
@@ -99,6 +100,8 @@ class SubscriptionPrice(models.Model):
 
     def __str__(self):
         return f"{(self.interval).upper()}LY {self.subscription} subscription costing {self.price}$"
+    
+    
     def get_checkout_url(self):
         return reverse("sub-price-checkout", 
             kwargs = {"price_id": self.id}  

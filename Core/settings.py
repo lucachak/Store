@@ -32,6 +32,17 @@ LOCAL => VENDORS
 
     [RESTRUCTURING THE TEMPLATES FOLDER...]
     
+    * MAIN FOLDER = 'Templates'
+    * FOLDER STRUCT : TEMPLATES
+    *                   |-> account # django.allauth "extend" to the project 
+    *                   |
+    *                   |-> Components
+    *                   |   |-> components.html # files that may be used throughout the whole app
+    *                   |
+    *                   |-> Name_of_the_App
+    *                       |->name_of_the_file.html # files that exclusive to the specific app
+    
+
 """
 
 
