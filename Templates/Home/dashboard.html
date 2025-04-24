@@ -1,14 +1,29 @@
 {% extends 'base.html'%}
+{% load static %}
+{% block title %} Home - {{ block.super }}  {% endblock title%}
+{% block links %} {{ block.super }} {% endblock links %}
+
+{% block top %}
+  {% if request.user.is_authenticated %}
+    <div class="">
+      {% include 'Components/navbar.html' %}
+    </div>
+    {% include 'Components/sidebar.html' %}  
+  {% else %}
+    {% include 'Components/navbar.html' %}  
+  {% endif %}
+
+{% endblock top %}
+
 
 {% block content %}
 
-<div class="flex">
-
- <!-- BASICALLY A DASHBOARD VIEW WITH USER ID/STRIPE ID SO IT CAN CHECK THE AMOUNT OF WHATEVER HE IS SPENDING -->
-  
-
-  <div class="text-white">
-    VAI TOMAR NO CU DILMA 
+  <div class="mt-12 text-white">
+    vai tomar no cu dilma
   </div>
-</div>
 {% endblock content %}
+
+
+{% block lower_block %}
+  <script src="{% static 'Js/chart.js' %}"></script>
+{% endblock lower_block %}

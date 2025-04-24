@@ -1,0 +1,18 @@
+
+  components:
+    name: web_server
+    type: gunicorn
+    properties:
+      host: localhost
+      port: 8000
+      workers: 3
+      timeout: 30
+
+    name: application
+    type: django
+    properties:
+      host: localhost
+      port: 8000
+      environment: development 
+      settings_module: Core.settings
+
