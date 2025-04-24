@@ -5,7 +5,7 @@ from .models import *
 # Create your views here.
 
 
-# display the home content
+# display the home/ intro to the main page content
 class HomeView(View):
     def get(self, request, *args, **kwargs):
         # add to the main counter the number of access on the main page
@@ -22,3 +22,16 @@ class HomeView(View):
 
         context = {'user_visits' : user_visits}
         return render(request, "Home/home.html", context)
+
+
+class DashboardView(View):
+    def get(self, request, *args, **kwargs):
+        context_manager = {}
+
+        return render(request,"Home/dashboard.html",context_manager)
+        
+
+
+
+    def post(self, request, *args, **kwargs):
+        pass
