@@ -27,11 +27,10 @@ class HomeView(View):
 class DashboardView(View):
     def get(self, request, *args, **kwargs):
         context_manager = {}
-
         return render(request,"Home/dashboard.html",context_manager)
         
 
-
-
     def post(self, request, *args, **kwargs):
         pass
+
+
