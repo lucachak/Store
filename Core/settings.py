@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import cast
 from decouple import config 
 import os 
 
@@ -54,6 +55,9 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+BASE_URL = config('BASE_URL',default=None,cast=str)
+
+
 if DEBUG :
     ALLOWED_HOSTS = ['*']
 else:
@@ -88,6 +92,7 @@ INSTALLED_APPS = [
     'Auth',
     'Subscription',
     'Customers',
+    'Checkout',
     
     # External Apps
     "allauth_ui",

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from unfold.admin import StackedInline, TabularInline
+from unfold.admin import ModelAdmin, TabularInline
 from .models import *
 
 # Register your models here.

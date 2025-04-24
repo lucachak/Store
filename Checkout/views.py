@@ -1,32 +1,53 @@
-from django.shortcuts import render, redirect
-from django.views import View 
-from django.contrib.auth.decorators import login_required
-
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.views import View
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from Subscription.models import SubscriptionPrice
-# Create your views here.
+import Core.billing
 
+BASE_URL = settings.BASE_URL
+
+
+
+# Create your views here.
+User = get_user_model()
 
 class ProductPriceRedirectView(View):
-    def get(self, request, obj_price_id=None, *args, **kwargs):
-        request.session['checkout_session_price_id'] = obj_price_id
+    def get(self, request, price_id=None, *args, **kwargs):
+        request.session['checkout_subscription_price_id'] = price_id
         return redirect("stripe-checkout-start")
 
 
-@login_required
 class CheckoutRedirectView(View):
+
     def get(self, request, *args, **kwargs):
-        checkout_sub_price_id = request.session.get('checkout_session_price_id')
+        checkout_subscription_price_id = request.session.get('checkout_subscription_price_id')
+
+        success_url_base = BASE_URL
+        success_url_path = reverse('stripe-checkout-end')
+        pricing_url_path = reverse('pricing')
+        success_url = f'{BASE_URL}{success_url_path}'
+        cancel_url = f'{BASE_URL}{pricing_url_path}'
 
         try: 
-            obj = SubscriptionPrice.objects.get(id=checkout_sub_price_id)
+            obj = SubscriptionPrice.objects.get(id=checkout_subscription_price_id)
         except:
             obj = None
 
-        if checkout_sub_price_id is None or obj is None :
-            return redirect('subscription')
-        checkout_sub_price_id = request.session.get('checkout_session_price_id')
+        if checkout_subscription_price_id is None or obj is None :
+            return redirect('pricing')
+        customer_stripe_id = request.user.customer.stripe_id
         
-        return redirect('/checkout')
+        price_stripe_id = obj.stripe_id
+        
+        
+        url = Core.billing.start_checkout_session(customer_stripe_id,
+                                            success_url=success_url,
+                                            cancel_url=cancel_url,
+                                            price_stripe_id=price_stripe_id,
+                                            raw=False)
+        return redirect(url)
 
 class CheckoutFinalizeView(View):
     def get(self, request,  *args, **kwargs):

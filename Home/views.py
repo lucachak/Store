@@ -22,5 +22,3 @@ class HomeView(View):
 
         context = {'user_visits' : user_visits}
         return render(request, "Home/home.html", context)
-
-

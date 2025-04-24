@@ -3,6 +3,7 @@ from django.urls import path
 from . import views as v
 
 urlpatterns = [
-    path('',v.SubscriptionView.as_view(),name="subscription"),
+    path('',v.SubscriptionView.as_view(),name="pricing"),
     path('<str:interval>/',v.SubscriptionView.as_view(),name="subscription_inter"),
+
 ]

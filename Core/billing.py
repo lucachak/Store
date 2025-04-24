@@ -34,7 +34,7 @@ def create_product(name:str="", metadata:dict={}, raw:bool=False):
     return stripe_id
 
 
-def create_price(currency="usd", unit_amount="9999", interval="month", product=None, metadata={},
+def create_price(currency="usd", unit_amount:int=9999, interval="month", product=None, metadata={},
         raw=False):
 
     if product is None:
@@ -51,3 +51,18 @@ def create_price(currency="usd", unit_amount="9999", interval="month", product=N
         return response
     stripe_id = response.id
     return stripe_id
+
+
+def start_checkout_session(customer_id:str="", success_url:str="", cancel_url:str="", price_stripe_id:str="",raw:bool=True):
+    if not success_url.endswith("?session_id={CHECKOUT_SESSION_ID}"):
+        success_url = f"{success_url}" + "?session_id={CHECKOUT_SESSION_ID}"
+    response = stripe.checkout.Session.create(
+        customer = customer_id,
+        success_url=success_url,
+        cancel_url=cancel_url,
+        line_items=[{"price": price_stripe_id, "quantity": 1}],
+        mode="subscription",
+    )
+    if raw:
+        return response
+    return response.url

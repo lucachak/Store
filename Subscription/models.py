@@ -1,9 +1,7 @@
 from django.db import models
-from unfold.admin import ModelAdmin,TabularInline
 from django.contrib.auth.models import Group, Permission
 from django.db.models.signals import post_save
 from django.conf import settings 
-from django.contrib import admin
 from django.urls import reverse
 import Core.billing 
 # Create your models here.
@@ -101,11 +99,8 @@ class SubscriptionPrice(models.Model):
     def __str__(self):
         return f"{(self.interval).upper()}LY {self.subscription} subscription costing {self.price}$"
     
-    
     def get_checkout_url(self):
-        return reverse("sub-price-checkout", 
-            kwargs = {"price_id": self.id}  
-            )
+        return reverse("sub-price-checkout",kwargs = {"price_id": self.id})
 
     @property
     def display_features_list(self):
@@ -130,7 +125,7 @@ class SubscriptionPrice(models.Model):
         return "usd"
     
     @property
-    def stripe_price(self):
+    def stripe_price(self) -> int:
         """
         remove decimal places
         """
