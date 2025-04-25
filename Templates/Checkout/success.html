@@ -1,0 +1,34 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block title %}  Welcome - {{ block.super }}  {% endblock title%}
+{% block links %} {{ block.super }} {% endblock links %}
+
+{% block top %}
+  {% if request.user.is_authenticated %}
+    <div class="">
+      {% include 'Components/navbar.html' %}
+    </div>
+    {% include 'Components/sidebar.html' %}  
+  {% else %}
+    {% include 'Components/navbar.html' %}  
+  {% endif %}
+
+{% endblock top %}
+
+
+{% block content %}
+    {% if not request.user.is_authenticated %}
+        <div class="">
+    {% else %}
+        <div class="">
+    {% endif %}
+
+
+            <div class="mt-12">
+                {{ subscription }}
+            </div>
+            <div>
+                {{ checkout }}
+            </div>
+    </div>
+{% endblock content %}

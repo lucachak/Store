@@ -7,7 +7,7 @@ if config('DEBUG',default=False,cast=bool):
 else:
     stripe.api_key = config('STRIPE_LIVE_SEC_KEY',default="",cast=str)
 
-if "sk_test" in stripe.api_key and not config('DEBUG',default=False,cast=bool):
+if "sk_test" in f'{stripe.api_key}' and not config('DEBUG',default=False,cast=bool):
     raise ValueError("Invalid credentials")
 
 def create_customer(name:str="", email:str="", metadata:dict={}, raw:bool=False):
@@ -66,3 +66,26 @@ def start_checkout_session(customer_id:str="", success_url:str="", cancel_url:st
     if raw:
         return response
     return response.url
+
+
+def get_checkout_session(stripe_id, raw=True):
+    response =  stripe.checkout.Session.retrieve(stripe_id)
+    if raw:
+        return response
+    return response.url
+
+def get_subscription(stripe_id, raw=True):
+    response =  stripe.Subscription.retrieve(stripe_id)
+    if raw:
+        return response
+    return serialize_subscription_data(response)
+
+
+def get_checkout_customer_plan(session_id):
+
+        checkout_r = get_checkout_session(session_id, raw=True)
+        customer_id = checkout_r.customer
+        sub_stripe_id = checkout_r.subscription
+        sub_r = get_subscription(sub_stripe_id, raw=True)
+        sub_plan = sub_r.plan
+        return customer_id, sub_plan.id

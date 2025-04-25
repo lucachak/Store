@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import cast
 from decouple import config 
 import os 
 
@@ -13,6 +12,11 @@ CHANGED SOME LINES FROM THEME TO MATCH THE FOREST THEME FORM FROM ALLAUTH UI.
 LOCAL => VENDORS 
 
 [SIMPLE RULES TO KEEP MYSELF ORGANIZED ]
+
+    [ TO DO ]
+    
+    * CREATE A CHECKING FOR USER AUTH ON THE DASHBOARD
+    
 
 
     [ HANDLING REQUESTS ]

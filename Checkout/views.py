@@ -1,14 +1,13 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views import View
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from Subscription.models import SubscriptionPrice
+from django.http import HttpResponseBadRequest
+from Subscription.models import SubscriptionPrice,Subscription, UserSubscription
 import Core.billing
 
 BASE_URL = settings.BASE_URL
-
-
 
 # Create your views here.
 User = get_user_model()
@@ -24,7 +23,6 @@ class CheckoutRedirectView(View):
     def get(self, request, *args, **kwargs):
         checkout_subscription_price_id = request.session.get('checkout_subscription_price_id')
 
-        success_url_base = BASE_URL
         success_url_path = reverse('stripe-checkout-end')
         pricing_url_path = reverse('pricing')
         success_url = f'{BASE_URL}{success_url_path}'
@@ -37,18 +35,46 @@ class CheckoutRedirectView(View):
 
         if checkout_subscription_price_id is None or obj is None :
             return redirect('pricing')
-        customer_stripe_id = request.user.customer.stripe_id
+        customer_id = request.user.customer.stripe_id
         
         price_stripe_id = obj.stripe_id
         
-        
-        url = Core.billing.start_checkout_session(customer_stripe_id,
-                                            success_url=success_url,
-                                            cancel_url=cancel_url,
-                                            price_stripe_id=price_stripe_id,
-                                            raw=False)
+        url = Core.billing.start_checkout_session(customer_id, success_url=success_url, cancel_url=cancel_url, price_stripe_id=price_stripe_id, raw=False)
         return redirect(url)
 
 class CheckoutFinalizeView(View):
     def get(self, request,  *args, **kwargs):
-        pass
+        
+        session_id  = request.GET.get('session_id')
+
+        customer_id, plan_id = Core.billing.get_checkout_customer_plan(session_id=session_id)
+        try:
+            sub_obj = Subscription.objects.get(subscriptionprice__stripe_id=plan_id)
+        except:
+            sub_obj = None
+
+        try:
+            user_obj = User.objects.get(customer__stripe_id=customer_id)
+        except:
+            user_obj = None
+
+
+        _user_sub_exists = False 
+        try:
+            _user_sub_obj = UserSubscription.objects.get(user=user_obj)
+            _user_sub_exists = True
+        except UserSubscription.DoesNotExist:
+            _user_sub_obj = UserSubscription.objects.create(user=user_obj,subscription=sub_obj)
+        except:
+            _user_sub_obj = None
+        
+        if None in [sub_obj, user_obj ,_user_sub_obj]:
+            return HttpResponseBadRequest("There was an Internal Error. Please Contact Us.")
+
+        if _user_sub_exists:
+            _user_sub_obj.subscription = sub_obj
+            _user_sub_obj.save()
+        context = {}
+
+
+        return render(request ,"Checkout/success.html", context)
