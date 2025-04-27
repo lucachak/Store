@@ -1,11 +1,13 @@
+from django.contrib.auth.decorators import login_required
+from Subscription.models import SubscriptionPrice,Subscription, UserSubscription
+from django.http import HttpResponseBadRequest
+from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, render
+from django.conf import settings
 from django.urls import reverse
 from django.views import View
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.http import HttpResponseBadRequest
-from Subscription.models import SubscriptionPrice,Subscription, UserSubscription
 import Core.billing
+
 
 BASE_URL = settings.BASE_URL
 
@@ -19,8 +21,12 @@ class ProductPriceRedirectView(View):
 
 
 class CheckoutRedirectView(View):
-
+    
     def get(self, request, *args, **kwargs):
+        val = request.user.customer.stripe_id
+
+        print(val)
+
         checkout_subscription_price_id = request.session.get('checkout_subscription_price_id')
 
         success_url_path = reverse('stripe-checkout-end')
@@ -39,7 +45,8 @@ class CheckoutRedirectView(View):
         
         price_stripe_id = obj.stripe_id
         
-        url = Core.billing.start_checkout_session(customer_id, success_url=success_url, cancel_url=cancel_url, price_stripe_id=price_stripe_id, raw=False)
+        url = Core.billing.start_checkout_session(customer_id, success_url=success_url, cancel_url=cancel_url,
+                                                  price_stripe_id=price_stripe_id, raw=False)
         return redirect(url)
 
 class CheckoutFinalizeView(View):
@@ -48,17 +55,20 @@ class CheckoutFinalizeView(View):
         session_id  = request.GET.get('session_id')
 
         customer_id, plan_id = Core.billing.get_checkout_customer_plan(session_id=session_id)
+        
+        #####################################################################################
         try:
             sub_obj = Subscription.objects.get(subscriptionprice__stripe_id=plan_id)
         except:
             sub_obj = None
+
 
         try:
             user_obj = User.objects.get(customer__stripe_id=customer_id)
         except:
             user_obj = None
 
-
+        #####################################################################################
         _user_sub_exists = False 
         try:
             _user_sub_obj = UserSubscription.objects.get(user=user_obj)

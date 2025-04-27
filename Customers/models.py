@@ -27,20 +27,19 @@ class Customer(models.Model):
         try:
             return f"{self.user.username}"
         except:
-            return f"{self.user}"
+            return f"{self.user.email}"
 
     def save(self, *args, **kwargs):
         if not self.stripe_id:
-            if self.init_email_confirmed and self.init_email:
+            if self.init_email_confirmed :
                 email = self.init_email
                 if email != "" or email is not None:
                     stripe_id = Core.billing.create_customer(
                         email=email,
-                        
                         # PARSE USER INFO FROM OUR DB TO STRIPE
                         metadata = {
                             "user_id":self.user.id,
-                            "username": self.username
+                            "username": self.user.username
                             },
                         # TYPE OF RESPONSE FROM  BILLING
                         raw=False

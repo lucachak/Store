@@ -33,5 +33,7 @@ class SubscriptionView(View):
         
         return render(request,"Subscription/pricing.html",context_manager)
 
+
+
     def post(self,request, *args, **kwargs):
         pass

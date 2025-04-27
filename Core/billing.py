@@ -1,4 +1,5 @@
 import stripe
+import datetime
 from decouple import config 
 
 
@@ -9,6 +10,23 @@ else:
 
 if "sk_test" in f'{stripe.api_key}' and not config('DEBUG',default=False,cast=bool):
     raise ValueError("Invalid credentials")
+
+
+def timestamp_as_datetime(timestamp):
+    return datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC)
+
+def serialize_subscription_data(subscription_response):
+    status = subscription_response.status
+    current_period_start = timestamp_as_datetime(subscription_response.current_period_start)
+    current_period_end = timestamp_as_datetime(subscription_response.current_period_end)
+    cancel_at_period_end = subscription_response.cancel_at_period_end
+    return {
+        "current_period_start": current_period_start,
+        "current_period_end": current_period_end,
+        "status": status,
+        "cancel_at_period_end": cancel_at_period_end,
+    }
+
 
 def create_customer(name:str="", email:str="", metadata:dict={}, raw:bool=False):
     response = stripe.Customer.create(
@@ -43,7 +61,7 @@ def create_price(currency="usd", unit_amount:int=9999, interval="month", product
     response = stripe.Price.create(
             currency=currency,
             unit_amount=unit_amount,
-            recurring={"interval": interval},
+            recurring={"interval": interval },
             product=product,
             metadata=metadata
         )
@@ -53,7 +71,8 @@ def create_price(currency="usd", unit_amount:int=9999, interval="month", product
     return stripe_id
 
 
-def start_checkout_session(customer_id:str="", success_url:str="", cancel_url:str="", price_stripe_id:str="",raw:bool=True):
+def start_checkout_session(customer_id:str="", success_url:str="",
+                           cancel_url:str="", price_stripe_id:str="",raw:bool=True):
     if not success_url.endswith("?session_id={CHECKOUT_SESSION_ID}"):
         success_url = f"{success_url}" + "?session_id={CHECKOUT_SESSION_ID}"
     response = stripe.checkout.Session.create(

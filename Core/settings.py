@@ -16,7 +16,7 @@ LOCAL => VENDORS
     [ TO DO ]
     
     * CREATE A CHECKING FOR USER AUTH ON THE DASHBOARD
-    
+    * CHECK THE 6:26:00 AND COMPARE WITH THE MODEL THAT YOU HAVE     
 
 
     [ HANDLING REQUESTS ]
@@ -66,10 +66,6 @@ if DEBUG :
     ALLOWED_HOSTS = ['*']
 else:
     pass
-
-
-
-
 
 
 # Application definition
@@ -247,7 +243,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 #   django allauth ui 
-ALLAUTH_UI_THEME = "light"
+ALLAUTH_UI_THEME = "dark"
 
 
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
