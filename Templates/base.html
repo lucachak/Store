@@ -8,13 +8,14 @@
     {% include 'Components/links.html' %}
   </head>
   <body class="bg-white border-gray-200 dark:bg-gray-950">
-    {% include 'Components/messages.html' %}
 
 
     {% block top %}
     {% endblock top %}
 
     <div class="p-4 sm:ml-64">
+    {% include 'Components/messages.html' %}
+
     {% block content %}
     {% endblock content %}
     </div>

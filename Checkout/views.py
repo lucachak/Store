@@ -3,6 +3,7 @@ from Subscription.models import SubscriptionPrice,Subscription, UserSubscription
 from django.http import HttpResponseBadRequest
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, render
+from django.contrib import messages
 from django.conf import settings
 from django.urls import reverse
 from django.views import View
@@ -54,7 +55,7 @@ class CheckoutFinalizeView(View):
         
         session_id  = request.GET.get('session_id')
 
-        customer_id, plan_id = Core.billing.get_checkout_customer_plan(session_id=session_id)
+        customer_id, plan_id, sub_stripe_id = Core.billing.get_checkout_customer_plan(session_id=session_id)
         
         #####################################################################################
         try:
@@ -70,11 +71,23 @@ class CheckoutFinalizeView(View):
 
         #####################################################################################
         _user_sub_exists = False 
+        updated_sub_options = {
+                "subscription": sub_obj,
+                "stripe_id":sub_stripe_id,
+                "user_cancelled":False
+        }
+        
+        
+        
         try:
             _user_sub_obj = UserSubscription.objects.get(user=user_obj)
             _user_sub_exists = True
+
         except UserSubscription.DoesNotExist:
-            _user_sub_obj = UserSubscription.objects.create(user=user_obj,subscription=sub_obj)
+            _user_sub_obj = UserSubscription.objects.create(
+                user=user_obj,
+                **updated_sub_options 
+                )
         except:
             _user_sub_obj = None
         
@@ -82,9 +95,18 @@ class CheckoutFinalizeView(View):
             return HttpResponseBadRequest("There was an Internal Error. Please Contact Us.")
 
         if _user_sub_exists:
-            _user_sub_obj.subscription = sub_obj
+            # cancel old one
+            old_stripe_id = _user_sub_obj.stripe_id
+
+            if old_stripe_id is not None:
+                Core.billing.cancel_subscription(old_stripe_id,reason="Auto Ended Membership, New Membership" ,feedback="other")
+
+            #assing a new one  (sub) 
+            for k, v in updated_sub_options.items():
+                setattr(_user_sub_obj, k,v)
+
             _user_sub_obj.save()
         context = {}
 
-
+        messages.success(request, "Profile details updated.")
         return render(request ,"Checkout/success.html", context)

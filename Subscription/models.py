@@ -156,6 +156,7 @@ class UserSubscription(models.Model):
     
     stripe_id = models.CharField(max_length=120, null=True, blank=True) 
     active = models.BooleanField(default=True)
+    user_cancelled = models.BooleanField(default=False)
 
 
 
