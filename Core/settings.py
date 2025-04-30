@@ -17,6 +17,9 @@ LOCAL => VENDORS
     
     * CREATE A CHECKING FOR USER AUTH ON THE DASHBOARD
     * CHECK THE 8:44:55 AND COMPARE WITH THE MODEL THAT YOU HAVE     
+    * CREATE A TOGGLE BUTTON TO CHANGE THE THEME WITHOUG JS, JUST DJANGO 
+    * ADD RATE LIMIT
+    * ADD SESSION (TIME AND SON ON)
 
 
     [ HANDLING REQUESTS ]
@@ -47,6 +50,10 @@ LOCAL => VENDORS
     *                   |-> Name_of_the_App
     *                       |->name_of_the_file.html # files that exclusive to the specific app
     
+
+
+
+
 
 """
 
@@ -194,6 +201,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+# SESSION FOR USER  USING DEFAULT DJANGO
+SESSION_COOKIE_AGE = 180 # 3 minutes. "1209600(2 weeks)" by default 
+
+SESSION_SAVE_EVERY_REQUEST = True # "False" by default
+
 
 #   Django Allauth
 SITE_ID = 1

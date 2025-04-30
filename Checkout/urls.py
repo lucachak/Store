@@ -11,7 +11,7 @@ urlpatterns = [
             ),
     
     path("checkout/start/", 
-            v.CheckoutRedirectView.as_view(),
+            login_required(v.CheckoutRedirectView.as_view()),
             name='stripe-checkout-start'
             ),
     
