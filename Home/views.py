@@ -37,34 +37,3 @@ class DashboardView(View):
         pass
 
 
-class TestView(View):
-
-    def get(self,request, interval="month", *args, **kwargs):
-        base_qs = SubscriptionPrice.objects.filter(featured=True)
-
-        interval_mo = SubscriptionPrice.IntervalChoices.MONTHLY
-        interval_yr = SubscriptionPrice.IntervalChoices.YEARLY
-
-        obj_list = base_qs.filter(interval=interval_mo)
-
-        url_path_name = "subscription_inter"
-        mo_url = reverse(url_path_name, kwargs={"interval":interval_mo})
-        yr_url = reverse(url_path_name, kwargs={"interval":interval_yr})
-
-        act = interval_mo 
-
-        if interval == interval_yr:
-            act = interval_yr
-            obj_list = base_qs.filter(interval=interval_yr)
-
-        context = {
-            "obj_list":obj_list,
-            "mo_url":mo_url,
-            "yr_url":yr_url,
-            "act":act,
-        }
-        return render(request, 'Test/pricing.html', context)
-
-    def post(self, request, *args, **kwargs):
-        pass
-

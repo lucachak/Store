@@ -13,11 +13,9 @@
         </title>
         {% block extra_head %}
             <link rel="stylesheet" href="{% static 'allauth_ui/output.css' %}">
-            <link rel="stylesheet" href="{% static 'Vendors/flowbite.min.css' %}">
-
         {% endblock extra_head %}
     </head>
-    <body class="min-h-screen bg-base-300  ">
+    <body class="min-h-screen bg-base-300">
         {% block body %}
             {% if messages %}
                 {% for message in messages %}
@@ -27,14 +25,8 @@
                     </div>
                 {% endfor %}
             {% endif %}
-            
-            {% block top %}
-            {% endblock top %}
-            
             {% block content %}
             {% endblock content %}
-
-
             <div class="mx-auto [&_a]:link text-sm flex flex-col md:flex-row items-center justify-center gap-3 mt-3">
                 {% if user.is_authenticated %}
                     {% url 'account_email' as email_url %}
@@ -60,7 +52,7 @@
                 {% else %}
                     {% url 'account_login' as login_url %}
                     {% if login_url %}
-                        <a href="{{ login_url }}">{% trans "Sign In" %}</a>
+                        <a href="{{ login_url }}">{% trans "Sign In aaaa" %}</a>
                     {% endif %}
                     {% url 'account_signup' as signup_url %}
                     {% if signup_url %}
@@ -68,10 +60,8 @@
                     {% endif %}
                 {% endif %}
             </div>
-        
         {% endblock body %}
         {% block extra_body %}
-            {% include 'Components/scripts.html' %}
-        {% endblock extra_body %} 
+        {% endblock extra_body %}
     </body>
 </html>

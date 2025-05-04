@@ -35,7 +35,7 @@
                                  {% else %} inline-block px-4 py-3 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white
                                  {% endif %}"
                                  aria-current="page"
-                                 hx-get="{% url 'get_month' interval='month' %}" 
+                                 hx-get="{% url 'subscription_inter' interval='month' %}" 
                                  hx-target="#container"
                                  hx-swap="innerHTML">Monthly
                         </button>
@@ -46,7 +46,7 @@
                                  {% else %} inline-block px-4 py-3 rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white 
                                  {% endif %}" 
                                  aria-current="page"
-                                 hx-get="{% url 'get_year' interval='year' %}" 
+                                 hx-get="{% url 'subscription_inter' interval='year' %}" 
                                  hx-target="#container"
                                  hx-swap="innerHTML">Yearly
                         </button>
