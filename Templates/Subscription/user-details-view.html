@@ -1,24 +1,32 @@
-{% extends 'base.html' %}
+{% extends 'base.html'%}
+{% load static %}
+{% block title %} Your Details - {{ block.super }}  {% endblock title%}
+{% block links %} {{ block.super }} {% endblock links %}
 
+{% block top %}
 
-{% block title %}Your Subscription - {{ block.super }}{% endblock title %}
+{% include 'Components/navbar.html' %}
 
-
+{% endblock top%}
 {% block content %}
-<h1 class="text-lg font-medium text-white">Your Subscription</h1>
-<form action="" method="POST">{% csrf_token %}
-    <button type="submit" >Refresh</button>
-</form>
+<div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
+    <h1 class="text-lg font-medium text-white">Your Subscription</h1>
+    <form action="" method="POST">{% csrf_token %}
+        <button  class="text-white" type="submit" >Refresh</button>
+    </form>
+</div>
+<div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-6">
 
-<a class="text-white" href="{{ subscription.get_cancel_url }}">Cancel Membership</a>
+    <a class="text-white" href="{{ subscription.get_cancel_url }}">Cancel Membership</a>
 
-<p class="text-white">Plan name: {{ subscription.plan_name }}</p>
+    <p class="text-white">Plan name: {{ subscription.plan_name }}</p>
 
-<p class="text-white">Status: {{ subscription.status|title }}</p>
+    <p class="text-white">Status: {{ subscription.status|title }}</p>
 
-<p class="text-white">Membership age: {{ subscription.original_period_start|timesince }} </p>
-<p class="text-white">Start: {{ subscription.current_period_start }}</p>
+    <p class="text-white">Membership age: {{ subscription.original_period_start|timesince }} </p>
+    <p class="text-white">Start: {{ subscription.current_period_start }}</p>
 
-<p class="text-white">End: {{ subscription.current_period_end|timeuntil }} ({{ subscription.current_period_end }})</p>
+    <p class="text-white">End: {{ subscription.current_period_end|timeuntil }} ({{ subscription.current_period_end }})</p>
+</div>
 
 {% endblock content %}

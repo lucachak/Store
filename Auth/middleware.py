@@ -22,7 +22,7 @@ class AutoLogoutMiddleware:
                     if timezone.now().timestamp() - last_activity > settings.SESSION_COOKIE_AGE:
                         logout(request)  # Log out the user
                         del request.session['last_activity']  # Clear the last activity time
-                        return redirect('login')  # Redirect to the login page
+                        return redirect('home')  # Redirect to the login page
 
                     # Update the last activity time
                     request.session['last_activity'] = timezone.now().timestamp()

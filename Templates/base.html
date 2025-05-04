@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Saas{% endblock title %}</title>
     {% include 'Components/links.html' %}
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
   </head>
   <body class="bg-white border-gray-200 dark:bg-gray-950">
 
@@ -18,13 +19,16 @@
 
     {% block content %}
     {% endblock content %}
-    </div>
     {% block lower_block %}
-    {% endblock lower_block %}
 
-    {% include 'Components/footer.html' %}
     {% include 'Components/loader.html' %}
     {% include 'Components/scripts.html' %}
-    {{ redirect_to_login_immediately }}
+    
+    {% include 'Components/footer.html' %}
+    {% endblock lower_block %}
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
+  </div>
+
   </body>
 </html>

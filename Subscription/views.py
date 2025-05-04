@@ -1,7 +1,10 @@
 from django.shortcuts import render,redirect
 from django.views import View
 from django.urls import reverse 
+from django.contrib import messages
 from Subscription.models import *
+from django.contrib import messages
+import Core.utils
 
 # Create your views here.
 class SubscriptionView(View):
@@ -39,8 +42,6 @@ class SubscriptionView(View):
 
 class UserSubscriptionView(View):
 
-
-
     def get(self, request, *args, **kwargs):
         user_sub_obj, created = UserSubscription.objects.get_or_create(user=request.user)
         if request.method == "POST":
@@ -49,8 +50,9 @@ class UserSubscriptionView(View):
 
 
     def post(self, request, *args, **kwargs):
+            user_sub_obj, created = UserSubscription.objects.get_or_create(user=request.user)
             print("refresh sub")
-            finished = subs_utils.refresh_active_users_subscriptions(user_ids=[request.user.id], active_only=False)
+            finished = Core.utils.refresh_active_users_subscriptions(user_ids=[request.user.id], active_only=False)
             if finished:
                 messages.success(request, "Your plan details have been refreshed.")
             else:
@@ -62,13 +64,13 @@ class UserSubscriptionCancelView(View):
     
     def get(self, request, *args, **kwargs):
         user_sub_obj, created = UserSubscription.objects.get_or_create(user=request.user)
-        return render(request, 'Subscriptions/user-cancel-view.html', {"subscription": user_sub_obj})
+        return render(request, 'Subscription/user-cancel-view.html', {"subscription": user_sub_obj})
     
     def post(self, request, *args, **kwargs):
         user_sub_obj, created = UserSubscription.objects.get_or_create(user=request.user)
         if request.method == "POST":
             if user_sub_obj.stripe_id and user_sub_obj.is_active_status:
-                sub_data = helpers.billing.cancel_subscription(
+                sub_data = Core.billing.cancel_subscription(
                     user_sub_obj.stripe_id, 
                     reason="User wanted to end", 
                     feedback="other",
@@ -80,4 +82,3 @@ class UserSubscriptionCancelView(View):
                 messages.success(request, "Your plan has been cancelled.")
             return redirect(user_sub_obj.get_absolute_url())
         return render(request, 'Subscriptions/user-cancel-view.html', {"subscription": user_sub_obj})
-# Create your views here.
