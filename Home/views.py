@@ -1,6 +1,7 @@
 from django.views import View
 from django.shortcuts import render, redirect 
 from .models import *
+from Customers.models import Customer 
 from django.urls import reverse 
 from Subscription.models import *
 from django.contrib import messages
@@ -29,7 +30,18 @@ class HomeView(View):
 # display the dashboard view
 class DashboardView(View):
     def get(self, request, *args, **kwargs):
-        context_manager = {}
+
+        subscription_count =  Subscription.objects.all().count()
+        user_sub_count = UserSubscription.objects.all().count() 
+        visit_count = getattr(UsersCount.objects.first() ,'counter')
+        user_count = Customer.objects.all().count()
+
+        context_manager = {
+            'visit_count':visit_count,
+            'user_count':user_count,
+            'subscription_count':subscription_count,
+            'user_sub_count':user_sub_count,
+        }
         return render(request,"Home/dashboard.html",context_manager)
         
 

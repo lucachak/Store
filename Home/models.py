@@ -8,3 +8,4 @@ class UsersCount(models.Model):
 
     def __str__(self):
         return f"User Count is at {self.counter} "
+

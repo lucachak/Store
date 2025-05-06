@@ -14,9 +14,7 @@ User = get_user_model()
 # generate a list of ALL Users
 class UserListView(View):
     def get(self,request, *args, **kwargs):
-        context = {
-            "object_list":User.objects.all()
-        }
+        context = {}
 
         return render(request, "Auth/User/user-list.html", context)    
 
@@ -87,7 +85,7 @@ class AdminView(View):
 
     def get(self, request, *args, **kwargs):
         context_manager = {}
-        return render(request, 'Auth/User/admin-view.html', context_manager)
+        return render(request, 'Auth/Admin/admin-view.html', context_manager)
 
 
     def post(self,request):
@@ -109,3 +107,5 @@ class ProfileListView(View):
             "is_me":True if profile_obj == request.user else False,
         }
         return render(request, 'Auth/userview.html', context_manager)
+
+

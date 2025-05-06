@@ -256,7 +256,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 #   django allauth ui 
-ALLAUTH_UI_THEME = "dark"
+ALLAUTH_UI_THEME = "light"
 
 
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
