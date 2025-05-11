@@ -5,6 +5,9 @@ from django.conf import settings
 from django.views import View
 from django.contrib.auth import get_user_model
 
+
+
+
 LOGIN_URL = settings.LOGIN_REDIRECT_URL
 User = get_user_model()
 
@@ -14,7 +17,13 @@ User = get_user_model()
 # generate a list of ALL Users
 class UserListView(View):
     def get(self,request, *args, **kwargs):
-        context = {}
+        
+        user_list = User.objects.all() 
+
+
+        context = {
+            'user_list':user_list
+        }
 
         return render(request, "Auth/User/user-list.html", context)    
 

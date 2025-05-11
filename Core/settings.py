@@ -15,13 +15,9 @@ LOCAL => VENDORS
 
     [ TO DO ]
     
-    * CREATE A CHECKING FOR USER AUTH ON THE DASHBOARD
-    * CHECK THE 8:44:55 AND COMPARE WITH THE MODEL THAT YOU HAVE     
     * CREATE A TOGGLE BUTTON TO CHANGE THE THEME WITHOUG JS, JUST DJANGO 
     * ADD RATE LIMIT
-    * ADD SESSION (TIME AND SON ON)
-
-
+    
     [ HANDLING REQUESTS ]
 
     * WHEN ADDING NEW ROUTES/ ENDPOINTS FOLLOW THE camelCase PRACTICE 
@@ -256,7 +252,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 #   django allauth ui 
-ALLAUTH_UI_THEME = "light"
+ALLAUTH_UI_THEME = "dark"
 
 
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -305,7 +301,6 @@ STATIC_ROOT = BASE_DIR/"local-cdn"
 
 MEDIA_ROOT =  os.path.join(BASE_DIR, 'Media')
 MEDIA_URL = 'Media/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
