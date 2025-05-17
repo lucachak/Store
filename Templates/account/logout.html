@@ -1,15 +1,35 @@
-{% extends "account/logout.html" %}
+{% extends "Base/base_login.html" %}
 {% load i18n %}
+{% load allauth account %}
+{% load static tailwind_tags %}
+{% load static %}
 {% load allauth_ui %}
+
+<body class="flex flex-col items-center justify-center px-6 pt-4 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900">
 {% block content %}
+
     {% trans "Sign Out" as heading %}
     {% trans "Are you sure you want to sign out?" as subheading %}
-    {% url 'account_logout' as action_url %}
-    {% #container heading=heading subheading=subheading %}
     {% trans "Continue" as button_text %}
-    {% #form url=action_url button_text=heading %}
-    {% csrf_token %}
-    {{ redirect_field }}
-    {% /form %}
-    {% /container %}
+    {% url 'account_logout' as action_url %}
+    <div class="h-screen flex flex-col items-center justify-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900">
+        <a href="" class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white">
+            <img src="https://flowbite.com/docs/images/logo.svg" class="mr-4 h-11" alt="FlowBite Logo">
+            <span>Lucas - SaaS</span>
+        </a>
+            <div class="w-full max-w-xl p-6 space-y-8 sm:p-8 rounded-lg shadow dark:bg-gray-800">
+            <div id="message-login" class="mt-0 flex justify-center">
+                <h2 class="text-2lg font-bold text-gray-900 dark:text-white"> You're about to be logged out
+
+                </h2>
+            </div>
+            <div class="flex flex-col items-center justify-center mx-auto md:h-screen pt:mt-0 dark:bg-gray-800">
+
+                    {% #form url=action_url button_text=button_text %}
+                        {% csrf_token %}
+                            {{ redirect_field }}
+                    {% /form %}
+            </div>
+
 {% endblock content %}
+</body>

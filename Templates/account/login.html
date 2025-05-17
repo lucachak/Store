@@ -1,50 +1,54 @@
-{% extends "account/login.html" %}
+{% extends "account/base_login.html" %}
 {% load i18n %}
 {% load allauth_ui %}
 {% load widget_tweaks %}
+{% load static %}
 
 
-{% block content %}
+    {% block content %}
+    {% trans "Sign In" as sign_button %}
+    {% trans "Welcome" as heading %}
+    <div class="h-screen flex flex-col items-center justify-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900">
+        <a href="" class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white">
+            <img src="https://flowbite.com/docs/images/logo.svg" class="mr-4 h-11" alt="FlowBite Logo">
+            <span>Lucas - SaaS</span>
+        </a>
+        {% if not SOCIALACCOUNT_ONLY %}
+        <div class="w-full max-w-xl p-6 space-y-8 sm:p-8 rounded-lg shadow dark:bg-gray-800">
+            <div id="message-login" class="mt-0 flex justify-center">
+                <h2 class="text-2lg font-bold text-gray-900 dark:text-white">If you have not created account yet, then please
+                <a class="ml-auto text-md text-blue-700 hover:underline dark:text-blue-500"
+                    href="{{ signup_url }}">sign up</a> first.
+                </h2>
+            </div>
+            {% url 'account_login' as action_url %}
 
-
-    {% trans "Sign In" as heading %}
-    {% #container heading=heading  %}
-    
-    {% if not SOCIALACCOUNT_ONLY %}
-        
-        <div class="py-3">If you have not created an account yet, then please
-            <a class="link" href="{{ signup_url }}">sign up</a> first.
-        </div>
-        
-        {% url 'account_login' as action_url %}
-        
-        {% #form form=form url=action_url button_text=heading %}
-        {% if form.remember %}
-            <div class="items-start my-2 form-control">
-                <label class="cursor-pointer label">
-                    {% render_field form.remember class="checkbox checkbox-accent" %}
-                    <span class="ml-2 label-text">{% trans "Remember me" %}</span>
+            {% #form form=form url=action_url button_text=sign_button %}
+            {% if form.remember %}
+            <div class="dark:bg-gray-800 items-start mt-4 form-control border-0">
+                <label class="dark:bg-gray-800 cursor-pointer label">
+                    {% render_field form.remember class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 " %}
+                    <span
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:text-blue-400 dark:bg-gray-800 dark:border-gray-600">
+                        {% trans "Remember me" %}</span>
                 </label>
             </div>
-        {% endif %}
-        {{ redirect_field }}
-        {% csrf_token %}
-        
-        <div class="flex flex-col">
-            <a class="link self-end text-sm"
-               href="{% url "account_reset_password" %}">{% trans "Forgot password?" %}</a>
+            {% endif %}
+            {{ redirect_field }}
+            {% csrf_token %}
+            <div class="flex flex-col">
+                <a class="ml-1 text-gray-900 dark:text-white link self-end text-sm" href="{% url "account_reset_password" %}">{% trans "Forgot password?" %}</a>
+            </div>
+            {% /form %}
+            {% endif %}
+            {% if LOGIN_BY_CODE_ENABLED %}
+            <div class="divider divider-neutral">
+                <a href="{{ request_login_code_url }}" class="btn btn-neutral">{% trans "Mail me a sign-in code" %}</a>
+            </div>
+            {% endif %}
+            {% if SOCIALACCOUNT_ENABLED %}
+            {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+            {% endif %}
         </div>
-        {% /form %}
-    {% endif %}
-
-
-
-    {% if LOGIN_BY_CODE_ENABLED %}
-        <div class="divider divider-neutral"></div>
-        <a href="{{ request_login_code_url }}" class="btn btn-neutral">{% trans "Mail me a sign-in code" %}</a>
-    {% endif %}
-    {% if SOCIALACCOUNT_ENABLED %}
-        {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
-    {% endif %}
-    {% /container %}
-{% endblock content %}
+    </div>
+    {% endblock content %}

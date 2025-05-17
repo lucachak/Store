@@ -1,18 +1,10 @@
 {% extends 'base.html'%}
 {% load static %}
-{% block title %} Profiles -  block.super   {% endblock title%}
+{% block title %} Profiles -  {{ block.super }}   {% endblock title%}
 {% block links %}  block.super  {% endblock links %}
 
 {% block top %}
-  {% if request.user.is_authenticated %}
-    <div class="">
-      {% include 'Components/navbar.html' %}
-    </div>
-    {% include 'Components/sidebar.html' %}  
-  {% else %}
-    {% include 'Components/navbar.html' %}  
-  {% endif %}
-
+  {% include 'Components/navbar.html' %}
 {% endblock top %}
 
 
