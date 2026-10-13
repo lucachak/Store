@@ -1,0 +1,12 @@
+{% load static i18n %}<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% trans "Something went wrong" %}</title><link rel="stylesheet" href="{% static 'Css/app.css' %}"></head>
+<body class="grid min-h-dvh place-items-center px-4">
+  <main class="max-w-md">
+    <h1>{% trans "Something went wrong on our side" %}</h1>
+    <p class="mt-3 text-muted">{% trans "We've been notified. Please try again in a few minutes." %}</p>
+    <a class="btn btn-primary mt-6" href="/">{% trans "Back to home" %}</a>
+  </main>
+</body>
+</html>

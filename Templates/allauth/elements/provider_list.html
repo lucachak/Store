@@ -1,0 +1,5 @@
+{% load allauth i18n %}
+<div class="mt-6 border-t border-rule pt-6">
+  <p class="mb-3 text-sm text-muted">{% trans "Or continue with" %}</p>
+  <ul class="grid gap-2">{% slot %}{% endslot %}</ul>
+</div>

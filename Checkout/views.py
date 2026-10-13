@@ -1,105 +1,137 @@
-from Subscription.models import SubscriptionPrice,Subscription, UserSubscription
-from django.http import HttpResponseBadRequest
-from django.contrib.auth import get_user_model
-from django.shortcuts import redirect, render
-from django.contrib import messages
+import logging
+
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext as _
 from django.views import View
-import Core.billing
+from django.views.decorators.csrf import csrf_exempt
+
+import Core.billing as billing
+from Customers.models import Customer
+from Subscription import services
+from Subscription.models import SubscriptionPrice
+
+logger = logging.getLogger(__name__)
 
 
-BASE_URL = settings.BASE_URL
+class CheckoutStartView(LoginRequiredMixin, View):
+    """Create a Stripe Checkout session for a price and send the user there."""
 
-# Create your views here.
-User = get_user_model()
+    http_method_names = ["post"]
 
-class ProductPriceRedirectView(View):
-    def get(self, request, price_id=None, *args, **kwargs):
-        request.session['checkout_subscription_price_id'] = price_id
-        return redirect("stripe-checkout-start")
+    def post(self, request, price_id, *args, **kwargs):
+        price = get_object_or_404(
+            SubscriptionPrice.objects.select_related("subscription"),
+            pk=price_id,
+            subscription__active=True,
+        )
+        if not billing.is_configured() or not price.stripe_id:
+            messages.error(request, _("Payments are not available right now. Please try again later."))
+            return redirect("pricing")
 
-
-class CheckoutRedirectView(View):
-    
-    def get(self, request, *args, **kwargs):
-        val = request.user.customer.stripe_id
-        checkout_subscription_price_id = request.session.get('checkout_subscription_price_id')
-
-        success_url_path = reverse('stripe-checkout-end')
-        pricing_url_path = reverse('pricing')
-        success_url = f'{BASE_URL}{success_url_path}'
-        cancel_url = f'{BASE_URL}{pricing_url_path}'
-
-        try: 
-            obj = SubscriptionPrice.objects.get(id=checkout_subscription_price_id)
-        except:
-            obj = None
-
-        if checkout_subscription_price_id is None or obj is None :
-            return redirect('pricing')
-        customer_id = request.user.customer.stripe_id
-        
-        price_stripe_id = obj.stripe_id
-        
-        url = Core.billing.start_checkout_session(customer_id, success_url=success_url, cancel_url=cancel_url,
-                                                  price_stripe_id=price_stripe_id, raw=False)
-        return redirect(url)
-
-class CheckoutFinalizeView(View):
-    def get(self, request,  *args, **kwargs):        
-        session_id = request.GET.get('session_id')
-
-
-        checkout_data = Core.billing.get_checkout_customer_plan(session_id)
-        plan_id = checkout_data.pop('plan_id')
-        customer_id = checkout_data.pop('customer_id')
-        sub_stripe_id = checkout_data.pop("sub_stripe_id")
-        subscription_data = {**checkout_data}
+        customer, _created = Customer.objects.get_or_create(
+            user=request.user, defaults={"init_email": request.user.email}
+        )
         try:
-            sub_obj = Subscription.objects.get(subscriptionprice__stripe_id=plan_id)
-        except:
-            sub_obj = None
-        try:
-            user_obj = User.objects.get(customer__stripe_id=customer_id)
-        except:
-            user_obj = None
-
-        _user_sub_exists = False
-        updated_sub_options = {
-            "subscription": sub_obj,
-            "stripe_id": sub_stripe_id,
-            "user_cancelled": False,
-            **subscription_data,
-        }
-        try:
-            _user_sub_obj = UserSubscription.objects.get(user=user_obj)
-            _user_sub_exists = True
-        except UserSubscription.DoesNotExist:
-            _user_sub_obj = UserSubscription.objects.create(
-                user=user_obj, 
-                **updated_sub_options
+            customer_id = customer.ensure_stripe_customer()
+            session = billing.start_checkout_session(
+                customer_id=customer_id,
+                price_stripe_id=price.stripe_id,
+                success_url=f"{settings.BASE_URL}{reverse('stripe-checkout-end')}",
+                cancel_url=f"{settings.BASE_URL}{reverse('pricing')}",
+                client_reference_id=str(request.user.pk),
             )
-        except:
-            _user_sub_obj = None
-        if None in [sub_obj, user_obj, _user_sub_obj]:
-            return HttpResponseBadRequest("There was an error with your account, please contact us.")
-        if _user_sub_exists:
-            # cancel old sub
-            old_stripe_id = _user_sub_obj.stripe_id
-            same_stripe_id = sub_stripe_id == old_stripe_id
-            if old_stripe_id is not None and not same_stripe_id:
-                try:
-                    Core.billing.cancel_subscription(old_stripe_id, reason="Auto ended, new membership", feedback="other")
-                except:
-                    pass
-            # assign new sub
-            for k, v in updated_sub_options.items():
-                setattr(_user_sub_obj, k, v)
-            
-            _user_sub_obj.save()
-            messages.success(request, "Success! Thank you for joining.")
-            return redirect(_user_sub_obj.get_absolute_url())
-        
-        context = {}
-        return render(request, "Checkout/success.html", context)
+        except billing.StripeError:
+            logger.exception("Could not start checkout for user %s", request.user.pk)
+            messages.error(request, _("We couldn't start the checkout. Please try again."))
+            return redirect("pricing")
+        return redirect(session.url)
+
+
+class CheckoutFinalizeView(LoginRequiredMixin, View):
+    """Where Stripe sends the user back after paying."""
+
+    def get(self, request, *args, **kwargs):
+        session_id = request.GET.get("session_id", "")
+        customer = Customer.objects.filter(user=request.user).first()
+        if not session_id or not customer or not customer.stripe_id:
+            return redirect("pricing")
+
+        try:
+            session = billing.get_checkout_session(session_id)
+            # The session must belong to this user, or anyone could claim
+            # a plan by pasting somebody else's session id.
+            if session.customer != customer.stripe_id or not session.subscription:
+                raise PermissionError
+            stripe_subscription = billing.get_subscription(session.subscription)
+        except PermissionError:
+            return HttpResponseBadRequest(_("This checkout session doesn't belong to your account."))
+        except (billing.StripeError, billing.BillingNotConfigured):
+            logger.exception("Could not finalize checkout %s", session_id)
+            messages.error(
+                request,
+                _("We couldn't confirm your payment yet. If you were charged, your plan will appear shortly."),
+            )
+            return redirect("user_subscription")
+
+        record = services.sync_user_subscription(request.user, stripe_subscription)
+        messages.success(request, _("You're subscribed. Thank you!"))
+        return redirect(record.get_absolute_url())
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class StripeWebhookView(View):
+    """Receives Stripe events. Authenticated by signature, not by session."""
+
+    http_method_names = ["post"]
+    SUBSCRIPTION_EVENTS = {
+        "customer.subscription.created",
+        "customer.subscription.updated",
+        "customer.subscription.deleted",
+    }
+
+    def post(self, request, *args, **kwargs):
+        if not settings.STRIPE_WEBHOOK_SECRET:
+            return HttpResponse(status=503)
+        try:
+            event = billing.construct_event(
+                request.body, request.META.get("HTTP_STRIPE_SIGNATURE", "")
+            )
+        except (ValueError, billing.SignatureVerificationError):
+            return HttpResponseBadRequest()
+
+        event_type = event["type"]
+        obj = event["data"]["object"]
+        try:
+            if event_type == "checkout.session.completed":
+                self._checkout_completed(obj)
+            elif event_type in self.SUBSCRIPTION_EVENTS:
+                self._subscription_changed(obj)
+        except billing.StripeError:
+            # A 5xx makes Stripe retry later with the same event.
+            logger.exception("Stripe error handling %s", event["id"])
+            return HttpResponse(status=500)
+        return HttpResponse(status=200)
+
+    @staticmethod
+    def _checkout_completed(session):
+        if session.get("mode") != "subscription" or not session.get("subscription"):
+            return
+        user = services.user_for_stripe_customer(session.get("customer"))
+        if user is None:
+            logger.warning("Checkout %s for unknown customer", session.get("id"))
+            return
+        services.sync_user_subscription(user, billing.get_subscription(session["subscription"]))
+
+    @staticmethod
+    def _subscription_changed(subscription):
+        user = services.user_for_stripe_customer(subscription.get("customer"))
+        if user is None:
+            logger.warning("Subscription %s for unknown customer", subscription.get("id"))
+            return
+        services.sync_user_subscription(user, subscription)

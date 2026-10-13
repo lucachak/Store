@@ -1,0 +1,7 @@
+{% extends "public.html" %}
+{% block title %}{% block head_title %}{% endblock %} · {{ SITE_NAME }}{% endblock %}
+{% block main %}
+<div class="mx-auto w-full max-w-md py-4 sm:py-10">
+  {% block content %}{% endblock %}
+</div>
+{% endblock %}

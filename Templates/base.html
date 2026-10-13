@@ -1,43 +1,25 @@
-{% load static %}
-
-<!DOCTYPE html>
-<html class="" lang="en">
-  <head>
-    <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Saas{% endblock title %}</title>
-    {% include 'Components/links.html' %}
-    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
-  </head>
-  <body class="leading-normal tracking-normal dark:bg-gray-900 dark:border-gray-700">
-
-
-    {% block top %}
-    {% endblock top %}
-
-    <div class="p-4 sm:ml-64">
-    {% include 'Components/messages.html' %}
-
-    {% block content %}
-    {% endblock content %}
-    {% block lower_block %}
-
-    {% include 'Components/loader.html' %}
-    {% include 'Components/scripts.html' %}
-    
-    {% include 'Components/footer.html' %}
-    {% endblock lower_block %}
-
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.46.0/dist/apexcharts.min.js"></script>
-    <script>
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark')
-        }
-    </script>
-
-  </body>
+{% load static i18n %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
+  <link rel="icon" href="{% static 'Img/mark.svg' %}" type="image/svg+xml">
+  <link rel="preload" href="{% static 'Fonts/instrument-sans-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <script>
+    try {
+      var t = localStorage.getItem("theme");
+      if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="{% static 'Css/app.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <a class="skip-link" href="#main">{% trans "Skip to content" %}</a>
+  {% block body %}{% endblock %}
+  <script src="{% static 'Js/htmx.min.js' %}" defer></script>
+  <script src="{% static 'Js/app.js' %}" defer></script>
+  {% block extra_body %}{% endblock %}
+</body>
 </html>

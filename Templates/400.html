@@ -1,0 +1,11 @@
+{% extends "public.html" %}
+{% load i18n %}
+{% block title %}{% trans "Bad request" %} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="empty mx-auto py-16 text-center">
+  <p class="money text-6xl text-accent">400</p>
+  <h1 class="mt-4">{% trans "Bad request" %}</h1>
+  <p class="mt-3">{% trans "The request couldn't be understood." %}</p>
+  <a class="btn btn-primary" href="{% url 'home' %}">{% trans "Back to home" %}</a>
+</div>
+{% endblock %}

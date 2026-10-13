@@ -1,0 +1,20 @@
+{% extends "app.html" %}
+{% load i18n ui %}
+{% block title %}{% block head_title %}{% endblock %} · {{ SITE_NAME }}{% endblock %}
+{% block main %}
+<div class="grid gap-8 lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-12">
+  <nav aria-label="{% trans 'Account' %}" class="flex flex-row flex-wrap gap-1 lg:flex-col">
+    {% url 'account_settings' as u_profile %}
+    {% url 'account_email' as u_email %}
+    {% url 'account_change_password' as u_password %}
+    {% url 'mfa_index' as u_mfa %}
+    {% url 'socialaccount_connections' as u_social %}
+    <a class="nav-link" href="{{ u_profile }}" {% if request.path == u_profile %}aria-current="page"{% endif %}>{% trans "Profile" %}</a>
+    <a class="nav-link" href="{{ u_email }}" {% if request.path == u_email %}aria-current="page"{% endif %}>{% trans "Email" %}</a>
+    <a class="nav-link" href="{{ u_password }}" {% if request.path == u_password %}aria-current="page"{% endif %}>{% trans "Password" %}</a>
+    <a class="nav-link" href="{{ u_mfa }}" {% if request.path|startswith:u_mfa %}aria-current="page"{% endif %}>{% trans "Two-factor" %}</a>
+    <a class="nav-link" href="{{ u_social }}" {% if request.path == u_social %}aria-current="page"{% endif %}>{% trans "Connections" %}</a>
+  </nav>
+  <div class="max-w-2xl">{% block content %}{% endblock %}</div>
+</div>
+{% endblock %}

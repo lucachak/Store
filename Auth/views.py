@@ -1,120 +1,99 @@
-from django.shortcuts import render,redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
-from django.conf import settings
-from django.views import View
+from django import forms
+from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
+from django.views import View
 
+from Subscription.models import SubscriptionStatus
 
-
-
-LOGIN_URL = settings.LOGIN_REDIRECT_URL
 User = get_user_model()
 
-
-# Create your views here. 
-
-# generate a list of ALL Users
-class UserListView(View):
-    def get(self,request, *args, **kwargs):
-        
-        user_list = User.objects.all() 
+PAGE_SIZE = 25
 
 
-        context = {
-            'user_list':user_list
+class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """Staff only. Signed-in users without staff access get a 403, not a redirect loop."""
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name"]
+        labels = {
+            "first_name": gettext_lazy("First name"),
+            "last_name": gettext_lazy("Last name"),
         }
 
-        return render(request, "Auth/User/user-list.html", context)    
 
-    def post(self,request):
-        context_manager = {}
-        pass
+class AccountSettingsView(LoginRequiredMixin, View):
+    """The signed-in user's own account page."""
 
-
-# generate a list of Active Users
-class UserActiveListView(View):
     def get(self, request, *args, **kwargs):
-        context = {
-            "object_list":User.objects.filter(is_active=True)
-        }
-
-        return render(request, "Auth/User/active-users.html", context)
+        return self._render(request, ProfileForm(instance=request.user))
 
     def post(self, request, *args, **kwargs):
-        pass
+        form = ProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Your profile has been saved."))
+            return redirect("account_settings")
+        return self._render(request, form, status=400)
+
+    @staticmethod
+    def _render(request, form, status=200):
+        email = request.user.emailaddress_set.filter(primary=True).first()
+        context = {
+            "form": form,
+            "email_address": email,
+            "has_two_factor": request.user.authenticator_set.exists(),
+        }
+        return render(request, "Auth/User/settings.html", context, status=status)
 
 
+class UserListView(StaffRequiredMixin, View):
+    """Searchable, paginated list of users. HTMX swaps just the table."""
 
-# generate the SPECIFIC user's details
-class UserDetailsView(View):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get("q", "").strip()
+        status = request.GET.get("status", "")
 
-    def get(self, request,username=None, *args, **kwargs):
-
-
-        user = request.user
-        print(
-            user.has_perm("Subscription.basic"),
-            user.has_perm("Subscription.pro"),
-            user.has_perm("Subscription.advanced"),
+        users = User.objects.select_related(
+            "usersubscription__subscription", "customer"
+        ).order_by("-date_joined")
+        if query:
+            users = users.filter(
+                Q(email__icontains=query)
+                | Q(username__icontains=query)
+                | Q(first_name__icontains=query)
+                | Q(last_name__icontains=query)
             )
+        if status == "none":
+            users = users.filter(usersubscription__isnull=True)
+        elif status in SubscriptionStatus.values:
+            users = users.filter(usersubscription__status=status)
 
-        profile_user_obj = get_object_or_404(User, username=username)
-        is_me = profile_user_obj == user
-
+        page = Paginator(users, PAGE_SIZE).get_page(request.GET.get("page"))
         context = {
-            "object":profile_user_obj,
-            "instance":profile_user_obj,
-            "is_me":is_me,
+            "page": page,
+            "q": query,
+            "status": status,
+            "statuses": SubscriptionStatus.choices,
         }
-        
-        return render(request, "Auth/User/user-details.html", context)
-
-    
-    def post(self, request, *args, **kwargs):
-        context_manager = {}
-        
-        pass
-
-# generate the Staffs views/list
-class StaffView(View):
-
-    @staff_member_required(login_url=LOGIN_URL)
-    def get(self, request, *args, **kwargs):
-        context_manager = {}
-        return render(request, 'Auth/Staff/staff-view.html', context_manager)
+        template = "Auth/User/_user-table.html" if request.headers.get("HX-Request") else "Auth/User/user-list.html"
+        return render(request, template, context)
 
 
-    def post(self,request):
-        context_manager = {}
-
-        pass
-
-class AdminView(View):
-
-    def get(self, request, *args, **kwargs):
-        context_manager = {}
-        return render(request, 'Auth/Admin/admin-view.html', context_manager)
-
-
-    def post(self,request):
-        context_manager = {}
-
-        pass
-
-
-class ProfileListView(View):
-    def get(self, request, username=None, *args, **kwargs):
-        profile_obj = get_object_or_404(User,username=username)
-        user = request.user
-        if profile_obj == user:
-            if user.has_perm("auth.view_user"):
-                print("Good")
-
-        context_manager = {
-            "user":profile_obj,
-            "is_me":True if profile_obj == request.user else False,
-        }
-        return render(request, 'Auth/userview.html', context_manager)
-
-
+class UserDetailsView(StaffRequiredMixin, View):
+    def get(self, request, pk, *args, **kwargs):
+        profile = get_object_or_404(
+            User.objects.select_related("usersubscription__subscription", "customer"), pk=pk
+        )
+        return render(request, "Auth/User/user-details.html", {"profile": profile})

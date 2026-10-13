@@ -129,3 +129,10 @@ fabric.properties
 
 package-lock.json
 *.db
+
+# Build output and dependencies
+/staticfiles/
+/local-cdn/
+node_modules/
+/db.sqlite3
+!/locale/**/*.mo

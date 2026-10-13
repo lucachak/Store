@@ -1,166 +1,194 @@
-import stripe
+"""
+Thin wrapper around the Stripe API.
+
+Everything that talks to Stripe goes through this module so the rest of the
+project never imports `stripe` directly and can be tested by patching one place.
+"""
 import datetime
-from decouple import config 
+import logging
+from decimal import Decimal
+
+import stripe
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
+StripeError = stripe.StripeError
+SignatureVerificationError = stripe.SignatureVerificationError
 
 
-if config('DEBUG',default=False,cast=bool):
-    stripe.api_key = config('STRIPE_TEST_SEC_KEY',default="",cast=str)
-else:
-    stripe.api_key = config('STRIPE_LIVE_SEC_KEY',default="",cast=str)
-
-if "sk_test" in f'{stripe.api_key}' and not config('DEBUG',default=False,cast=bool):
-    raise ValueError("Invalid credentials")
+class BillingNotConfigured(RuntimeError):
+    """Raised when a Stripe call is attempted without `STRIPE_SECRET_KEY`."""
 
 
-def timestamp_as_datetime(timestamp):
-    return datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC)
+def is_configured() -> bool:
+    return bool(settings.STRIPE_SECRET_KEY)
 
 
+def _api_key() -> str:
+    if not is_configured():
+        raise BillingNotConfigured("STRIPE_SECRET_KEY is not set.")
+    return settings.STRIPE_SECRET_KEY
 
 
+def _opts() -> dict:
+    # Passing the key per call keeps this module free of global state.
+    return {"api_key": _api_key()}
 
-def serialize_subscription_data(subscription_response):
 
-    status = subscription_response.status
-    current_period_start = timestamp_as_datetime(
-        subscription_response['items']['data'][0].get("current_period_start")
-        )
-    current_period_end = timestamp_as_datetime(
-        subscription_response['items']['data'][0].get("current_period_end")
-        )
+def to_datetime(timestamp) -> datetime.datetime | None:
+    if timestamp is None:
+        return None
+    return datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
 
-    cancel_at_period_end = subscription_response.cancel_at_period_end
+
+def to_minor_units(amount: Decimal) -> int:
+    """Convert 19.99 to 1999 without float rounding errors."""
+    return int((Decimal(amount) * 100).quantize(Decimal("1")))
+
+
+# --------------------------------------------------------------------------- #
+# Serialisation
+# --------------------------------------------------------------------------- #
+def subscription_price_id(subscription) -> str | None:
+    items = (subscription.get("items") or {}).get("data") or []
+    if not items:
+        return None
+    price = items[0].get("price") or {}
+    return price.get("id")
+
+
+def serialize_subscription(subscription) -> dict:
+    """The fields we mirror locally for a Stripe subscription.
+
+    Recent Stripe API versions moved the billing period from the subscription
+    to its items, older ones keep it on the subscription. Support both.
+    """
+    items = (subscription.get("items") or {}).get("data") or []
+    first_item = items[0] if items else {}
+
+    def period(key):
+        return first_item.get(key) or subscription.get(key)
+
     return {
-        "current_period_start": current_period_start,
-        "current_period_end": current_period_end,
-        "status": status,
-        "cancel_at_period_end": cancel_at_period_end,
+        "status": subscription.get("status"),
+        "current_period_start": to_datetime(period("current_period_start")),
+        "current_period_end": to_datetime(period("current_period_end")),
+        "cancel_at_period_end": bool(subscription.get("cancel_at_period_end")),
     }
 
 
-def create_customer(name:str="", email:str="", metadata:dict={}, raw:bool=False):
-    response = stripe.Customer.create(
-        name=name,
-        email=email,
-        metadata=metadata
+# --------------------------------------------------------------------------- #
+# Catalogue
+# --------------------------------------------------------------------------- #
+def create_customer(email: str, name: str = "", metadata: dict | None = None) -> str:
+    customer = stripe.Customer.create(
+        email=email, name=name or None, metadata=metadata or {}, **_opts()
     )
-
-    if raw:
-        return response
-    stripe_id = response.id
-    return stripe_id
+    return customer.id
 
 
-def create_product(name="", 
-        metadata={},
-        raw=False):
-    response = stripe.Product.create(
-        name=name,
-        metadata=metadata,
+def create_product(name: str, metadata: dict | None = None) -> str:
+    product = stripe.Product.create(name=name, metadata=metadata or {}, **_opts())
+    return product.id
+
+
+def create_price(
+    product_id: str,
+    unit_amount: int,
+    currency: str,
+    interval: str = "month",
+    metadata: dict | None = None,
+) -> str:
+    price = stripe.Price.create(
+        product=product_id,
+        unit_amount=unit_amount,
+        currency=currency,
+        recurring={"interval": interval},
+        metadata=metadata or {},
+        **_opts(),
     )
-    if raw:
-        return response
-    stripe_id = response.id 
-    return stripe_id
+    return price.id
 
 
-def create_price(currency="usd",
-                unit_amount="9999",
-                interval="month",
-                product=None,
-                metadata={},
-        raw=False):
-    if product is None:
-        return None
-    response = stripe.Price.create(
-            currency=currency,
-            unit_amount=unit_amount,
-            recurring={"interval": interval},
-            product=product,
-            metadata=metadata
-        )
-    if raw:
-        return response
-    stripe_id = response.id 
-    return stripe_id
-
-
-def start_checkout_session(customer_id:str="", success_url:str="",
-                           cancel_url:str="", price_stripe_id:str="",raw:bool=True):
-    if not success_url.endswith("?session_id={CHECKOUT_SESSION_ID}"):
-        success_url = f"{success_url}" + "?session_id={CHECKOUT_SESSION_ID}"
-    response = stripe.checkout.Session.create(
-        customer = customer_id,
+# --------------------------------------------------------------------------- #
+# Checkout and subscriptions
+# --------------------------------------------------------------------------- #
+def start_checkout_session(
+    customer_id: str,
+    price_stripe_id: str,
+    success_url: str,
+    cancel_url: str,
+    client_reference_id: str = "",
+):
+    if "{CHECKOUT_SESSION_ID}" not in success_url:
+        separator = "&" if "?" in success_url else "?"
+        success_url = f"{success_url}{separator}session_id={{CHECKOUT_SESSION_ID}}"
+    return stripe.checkout.Session.create(
+        mode="subscription",
+        customer=customer_id,
+        client_reference_id=client_reference_id or None,
+        line_items=[{"price": price_stripe_id, "quantity": 1}],
         success_url=success_url,
         cancel_url=cancel_url,
-        line_items=[{"price": price_stripe_id, "quantity": 1}],
-        mode="subscription",
+        allow_promotion_codes=True,
+        **_opts(),
     )
-    if raw:
-        return response
-    return response.url
 
 
+def get_checkout_session(session_id: str):
+    return stripe.checkout.Session.retrieve(session_id, **_opts())
 
-def get_checkout_session(stripe_id, raw=True):
-    response =  stripe.checkout.Session.retrieve(
-            stripe_id
+
+def get_subscription(subscription_id: str):
+    return stripe.Subscription.retrieve(subscription_id, **_opts())
+
+
+def list_active_subscriptions(customer_id: str):
+    return stripe.Subscription.list(customer=customer_id, status="active", **_opts())
+
+
+def cancel_subscription(
+    subscription_id: str,
+    reason: str = "",
+    feedback: str = "other",
+    at_period_end: bool = False,
+):
+    details = {"comment": reason, "feedback": feedback}
+    if at_period_end:
+        return stripe.Subscription.modify(
+            subscription_id,
+            cancel_at_period_end=True,
+            cancellation_details=details,
+            **_opts(),
         )
-    if raw:
-        return response
-    return response.url
-
-def get_subscription(stripe_id, raw=True):
-    response =  stripe.Subscription.retrieve(
-            stripe_id
-        )
-    if raw:
-        return response
-    return serialize_subscription_data(response)
+    return stripe.Subscription.cancel(
+        subscription_id, cancellation_details=details, **_opts()
+    )
 
 
-def get_customer_active_subscriptions(customer_stripe_id):
-    response =  stripe.Subscription.list(
-            customer=customer_stripe_id,
-            status="active"
-        )
-    return response
+def resume_subscription(subscription_id: str):
+    """Undo a scheduled cancellation, as long as the period hasn't ended."""
+    return stripe.Subscription.modify(
+        subscription_id, cancel_at_period_end=False, **_opts()
+    )
 
-def cancel_subscription(stripe_id, reason="", feedback="other", cancel_at_period_end=False, raw=True):
-    if cancel_at_period_end:
-        response =  stripe.Subscription.modify(
-                stripe_id,
-                cancel_at_period_end=cancel_at_period_end,
-                cancellation_details={
-                    "comment": reason,
-                    "feedback": feedback
-                }
-            )
-    else:
-        response =  stripe.Subscription.cancel(
-                stripe_id,
-                cancellation_details={
-                    "comment": reason,
-                    "feedback": feedback
-                }
-            )
-    if raw:
-        return response
-    return serialize_subscription_data(response)
 
-def get_checkout_customer_plan(session_id):
-    checkout_r = get_checkout_session(session_id, raw=True)
-    customer_id = checkout_r.customer
-    sub_stripe_id = checkout_r.subscription
-    sub_r = get_subscription(sub_stripe_id, raw=True)
-    # current_period_start
-    # current_period_end
-    sub_plan = sub_r.plan
-    subscription_data = serialize_subscription_data(sub_r)
-    data = {
-        "customer_id": customer_id,
-        "plan_id": sub_plan.id,
-        "sub_stripe_id": sub_stripe_id,
-       **subscription_data,
-    }
-    return data
+def create_portal_session(customer_id: str, return_url: str):
+    return stripe.billing_portal.Session.create(
+        customer=customer_id, return_url=return_url, **_opts()
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Webhooks
+# --------------------------------------------------------------------------- #
+def construct_event(payload: bytes, signature_header: str):
+    """Verify the signature and parse a webhook payload.
+
+    Raises `ValueError` for a bad payload and `SignatureVerificationError`
+    for a bad or missing signature.
+    """
+    return stripe.Webhook.construct_event(
+        payload, signature_header, settings.STRIPE_WEBHOOK_SECRET
+    )

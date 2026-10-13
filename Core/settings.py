@@ -1,307 +1,272 @@
+"""
+Project settings.
+
+Everything environment-specific comes from the environment (or a local `.env`
+file, see `env.example`). Nothing secret lives in this file.
+
+Project conventions
+-------------------
+* Templates live in `Templates/`. One folder per app, shared pieces in
+  `Templates/Components/`, django-allauth overrides in `Templates/allauth/`
+  and `Templates/account/`.
+* Class-based views, camelCase class names, kebab-case URL paths.
+* Every user-facing string goes through `{% trans %}` / `gettext`, and the
+  translations live in `locale/`.
+"""
+import sys
 from pathlib import Path
-from decouple import config 
-import os 
 
-"""
-MAIN CONFIG FILE, MEANING THAT ALL THE ACCOUNT, URL, TEMPLATE ETC... CONFIG ARE LOCATED HERE. 
+import dj_database_url
+from decouple import Csv, config
+from django.core.exceptions import ImproperlyConfigured
 
-SOME CONFIGS ARE PULLED FROM A .ENV 
-
-CHANGED SOME LINES FROM THEME TO MATCH THE FOREST THEME FORM FROM ALLAUTH UI. 
-
-LOCAL => VENDORS 
-
-[SIMPLE RULES TO KEEP MYSELF ORGANIZED ]
-
-    [ TO DO ]
-    
-    * CREATE A TOGGLE BUTTON TO CHANGE THE THEME WITHOUG JS, JUST DJANGO 
-    * ADD RATE LIMIT
-    
-    [ HANDLING REQUESTS ]
-
-    * WHEN ADDING NEW ROUTES/ ENDPOINTS FOLLOW THE camelCase PRACTICE 
-    * ALSO, THESE ARE CLASS BASED VIEWS. MEANING THAT THE CONFIG WILL BE DONE 
-    * IN TWO DIFF PLACES,INSIDE THE CLASS AND ON THE URLS.PY 
-    * NAMING A CLASS IS STRUCTURED LIKE IN JAVA, MEANING A camelCase too
-    
-    
-    [TEMPLATES/STATICS]
-
-    * WHEN CREATING AN APP, ADD IT'S REFERENT FOLDER IN THE TEMPLATES, IN ORDER TO MAKE IT EASIER
-    * TO FIND AND TO ALTER LATER ON. COMPONENTS FOLDER IS ONLY FOR REUSABLE PIECES OF CONTENT
-    * THAT ARE NOT AS IMPORTANT AS THE CORE("base.html") BUT WILL BE USED THROUGHOUT THE SITE 
-
-    * WHEN NAMING OR CREATING A FILE *.html IT CANNOT BE UPPERCASE
-
-    [RESTRUCTURING THE TEMPLATES FOLDER...]
-    
-    * MAIN FOLDER = 'Templates'
-    * FOLDER STRUCT : TEMPLATES
-    *                   |-> account # django.allauth "extend" to the project 
-    *                   |
-    *                   |-> Components
-    *                   |   |-> components.html # files that may be used throughout the whole app
-    *                   |
-    *                   |-> Name_of_the_App
-    *                       |->name_of_the_file.html # files that exclusive to the specific app
-    
-
-
-
-
-
-"""
-
-
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY') 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
 
-BASE_URL = config('BASE_URL',default=None,cast=str)
+# --------------------------------------------------------------------------- #
+# Core
+# --------------------------------------------------------------------------- #
+SECRET_KEY = config("SECRET_KEY")
+DEBUG = config("DEBUG", default=False, cast=bool)
+TESTING = "test" in sys.argv
 
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
 
-if DEBUG :
-    ALLOWED_HOSTS = ['*']
-else:
-    pass
+# Public origin of the site, used to build Stripe return URLs.
+BASE_URL = config("BASE_URL", default="http://localhost:8000").rstrip("/")
+SITE_NAME = config("SITE_NAME", default="Tally")
 
-
-# Application definition
-
+# --------------------------------------------------------------------------- #
+# Applications
+# --------------------------------------------------------------------------- #
 INSTALLED_APPS = [
-    "unfold",  # before django.contrib.admin
-    "unfold.contrib.filters",  # optional, if special filters are needed
-    "unfold.contrib.forms",  # optional, if special form elements are needed
-    "unfold.contrib.inlines",  # optional, if special inlines are needed
-    "unfold.contrib.import_export",  # optional, if django-import-export package is used
-    "unfold.contrib.guardian",  # optional, if django-guardian package is used
-    "unfold.contrib.simple_history",
-    "crispy_forms",
-
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    # Internal Apps 
-    'Home',
-    'Auth',
-    'Subscription',
-    'Customers',
-    'Checkout',
-    
-    # External Apps
-    "allauth_ui",
+    "unfold",  # must come before django.contrib.admin
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    # Internal apps
+    "Home",
+    "Auth",
+    "Subscription",
+    "Customers",
+    "Checkout",
+    # External apps
     "allauth",
     "allauth.account",
+    "allauth.mfa",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.github",
     "allauth.socialaccount.providers.google",
     "widget_tweaks",
-    "slippers",
-    "django_browser_reload",
-
     "whitenoise.runserver_nostatic",
 ]
 
-
-
 MIDDLEWARE = [
-    'Auth.middleware.AutoLogoutMiddleware',
-
-    'django.middleware.security.SecurityMiddleware',
-    
+    "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # Needs request.user, so it has to come after authentication.
+    "Auth.middleware.IdleLogoutMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
-ROOT_URLCONF = 'Core.urls'
+if DEBUG:
+    INSTALLED_APPS.append("django_browser_reload")
+    MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
+
+ROOT_URLCONF = "Core.urls"
+WSGI_APPLICATION = "Core.wsgi.application"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR/'Templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "Templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.i18n",
+                "Core.context_processors.site",
             ],
-            "builtins": ["slippers.templatetags.slippers"],
         },
     },
 ]
 
-WSGI_APPLICATION = 'Core.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# --------------------------------------------------------------------------- #
+# Database (PostgreSQL by default, see env.example)
+# --------------------------------------------------------------------------- #
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-
-
-        #'default': {
-        #    'ENGINE': 'django.db.backends.mysql',
-        #    'NAME': config('DATABASE_NAME', default=None, cast=str),
-        #    'USER': config('DATABASE_USER', default=None, cast=str),
-        #    'PASSWORD': config('DATABASE_PASSWD', default=None, cast=str),
-        #    'HOST': config('DATABASE_HOST', default='localhost', cast=str),
-        #    'PORT': config('DATABASE_PORT', default=3306, cast=str),
-        #}
+    "default": dj_database_url.config(
+        env="DATABASE_URL",
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=config("DATABASE_CONN_MAX_AGE", default=60, cast=int),
+        conn_health_checks=True,
+    )
 }
 
-STORAGES = {
-    # ...
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-    },
-}
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+# --------------------------------------------------------------------------- #
+# Authentication (django-allauth)
+# --------------------------------------------------------------------------- #
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+LOGIN_URL = "account_login"
+LOGIN_REDIRECT_URL = "dashboard"
+ACCOUNT_LOGOUT_REDIRECT_URL = "home"
 
-SESSION_COOKIE_AGE = 1800
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True 
-
-#   Django Allauth
-SITE_ID = 1
-
-ACCOUNT_SIGNUP_FIELDS = { 'email*', 'password1*', 'password2*'}
-ACCOUNT_LOGIN_METHODS = {'email',}
-EMAIL_REQUIRED = True
-
-
-LOGIN_REDIRECT_URL = '/'
-ACCOUNT_LOGOUT_REDIRECT_URL = '/'
-ACCOUNT_SESSION_REMEMBER = True
-
-
+ACCOUNT_LOGIN_METHODS = {"email"}
+# A list, not a set: the order of this setting decides the order of the form.
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "[SaaS] "
+ACCOUNT_EMAIL_SUBJECT_PREFIX = f"[{SITE_NAME}] "
+ACCOUNT_SESSION_REMEMBER = None  # ask on the login form
+ACCOUNT_LOGIN_BY_CODE_ENABLED = False
+
+# Two-factor authentication (TOTP apps such as Google Authenticator).
+MFA_SUPPORTED_TYPES = ["totp", "recovery_codes"]
+MFA_TOTP_ISSUER = SITE_NAME
+
+SOCIALACCOUNT_LOGIN_ON_GET = False
 
 
-AUTHENTICATION_BACKENDS = [
-    # Needed to login by username in Django admin, regardless of `allauth`
-    'django.contrib.auth.backends.ModelBackend',
+def _social_app(prefix: str, *legacy_names: str) -> dict:
+    """Return the allauth `APP` config for a provider, or {} when not configured."""
+    legacy_id, legacy_secret = legacy_names or ("", "")
+    client_id = config(f"{prefix}_CLIENT_ID", default=config(legacy_id, default="") if legacy_id else "")
+    secret = config(f"{prefix}_CLIENT_SECRET", default=config(legacy_secret, default="") if legacy_secret else "")
+    if client_id and secret:
+        return {"APP": {"client_id": client_id, "secret": secret}}
+    return {}
 
-    # `allauth` specific authentication methods, such as login by email
-    'allauth.account.auth_backends.AuthenticationBackend',
+
+# A provider is only offered on the login page when its credentials are set.
+SOCIALACCOUNT_PROVIDERS = {}
+if _github := _social_app("GITHUB", "oauth_git_Cid", "oauth_git_Sec"):
+    SOCIALACCOUNT_PROVIDERS["github"] = {**_github, "VERIFIED_EMAIL": True, "SCOPE": ["user:email"]}
+if _google := _social_app("GOOGLE", "GOOGLE_ID", "GOOGLE_SEC"):
+    SOCIALACCOUNT_PROVIDERS["google"] = {**_google, "VERIFIED_EMAIL": True, "SCOPE": ["profile", "email"]}
+
+# --------------------------------------------------------------------------- #
+# Sessions
+# --------------------------------------------------------------------------- #
+SESSION_COOKIE_AGE = config("SESSION_COOKIE_AGE", default=60 * 60 * 24 * 14, cast=int)
+# Seconds of inactivity before a signed-in user is logged out. 0 disables it.
+SESSION_IDLE_TIMEOUT = config("SESSION_IDLE_TIMEOUT", default=60 * 60 * 2, cast=int)
+
+# --------------------------------------------------------------------------- #
+# Email
+# --------------------------------------------------------------------------- #
+EMAIL_BACKEND = config(
+    "EMAIL_BACKEND",
+    default=(
+        "django.core.mail.backends.console.EmailBackend"
+        if DEBUG
+        else "django.core.mail.backends.smtp.EmailBackend"
+    ),
+)
+EMAIL_HOST = config("EMAIL_HOST", default="localhost")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_USE_SSL = config("EMAIL_USE_SSL", default=False, cast=bool)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER or "noreply@localhost")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# --------------------------------------------------------------------------- #
+# Stripe / billing
+# --------------------------------------------------------------------------- #
+STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")
+STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY", default="")
+STRIPE_WEBHOOK_SECRET = config("STRIPE_WEBHOOK_SECRET", default="")
+BILLING_CURRENCY = config("BILLING_CURRENCY", default="usd").lower()
+
+if not DEBUG and not TESTING and STRIPE_SECRET_KEY.startswith("sk_test"):
+    raise ImproperlyConfigured("A Stripe test key is configured while DEBUG is off.")
+
+# --------------------------------------------------------------------------- #
+# Internationalisation
+# --------------------------------------------------------------------------- #
+LANGUAGE_CODE = "en"
+LANGUAGES = [
+    ("en", "English"),
+    ("pt-br", "Português (Brasil)"),
 ]
-
-SOCIALACCOUNT_PROVIDERS = {
-    'github': {
-        'APP': {
-            'client_id':config('oauth_git_Cid'),
-            'secret':config('oauth_git_Sec'),
-        },
-        'AUTH_PARAMS':{
-            'prompt':'consent',
-        },
-        "VERIFIED_EMAIL":True,
-    },
-
-
-    'google':{
-        'APP':{
-            'client_id':config('GOOGLE_ID'),
-            'secret':config('GOOGLE_SEC')
-        },
-        'VERIFIED_EMAIL':True,
-    }
-}
-
-#   django allauth ui 
-ALLAUTH_UI_THEME = "dark"
-
-
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-#email config
-EMAIL_HOST = config('EMAIL_HOST',cast=str, default='smtp.gmail.com' )
-EMAIL_PORT = config('EMAIL_PORT', cast=str, default='587')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=True)
-EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast=bool, default=False)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str, default=None)
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str, default=None)
-ADMINS=config('ADMINS', cast=list, default=None)
-MANAGERS=ADMINS
-
-
-# Django unfold
-CRISPY_TEMPLATE_PACK = "unfold_crispy"
-
-CRISPY_ALLOWED_TEMPLATE_PACKS = ["unfold_crispy"]
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'CET'
-
+LOCALE_PATHS = [BASE_DIR / "locale"]
+TIME_ZONE = config("TIME_ZONE", default="UTC")
 USE_I18N = True
-
 USE_TZ = True
 
+# --------------------------------------------------------------------------- #
+# Static and media files
+# --------------------------------------------------------------------------- #
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "Static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "Media"
 
-STATIC_URL = 'Static/'
-STATICFILES_BASE_DIR = BASE_DIR/"Static"
-STATICFILES_VENDORS_DIR = STATICFILES_BASE_DIR/"Vendors"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        # The manifest storage needs `collectstatic`, which tests and local dev don't run.
+        "BACKEND": (
+            "whitenoise.storage.CompressedStaticFilesStorage"
+            if DEBUG or TESTING
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
+    },
+}
+WHITENOISE_USE_FINDERS = DEBUG
 
-STATICFILES_DIRS = [
-    BASE_DIR/"Static",
-]
+# --------------------------------------------------------------------------- #
+# Admin (django-unfold)
+# --------------------------------------------------------------------------- #
+UNFOLD = {
+    "SITE_TITLE": SITE_NAME,
+    "SITE_HEADER": SITE_NAME,
+    "SITE_URL": "/",
+}
 
-STATIC_ROOT = BASE_DIR/"local-cdn"
+# --------------------------------------------------------------------------- #
+# Production hardening
+# --------------------------------------------------------------------------- #
+if not DEBUG:
+    if config("BEHIND_PROXY", default=False, cast=bool):
+        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=0, cast=int)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURE_HSTS_SECONDS > 0
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "same-origin"
+    X_FRAME_OPTIONS = "DENY"
 
-MEDIA_ROOT =  os.path.join(BASE_DIR, 'Media')
-MEDIA_URL = 'Media/'
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+ADMINS = [tuple(pair.split(":", 1)) for pair in config("ADMINS", default="", cast=Csv()) if ":" in pair]
+MANAGERS = ADMINS

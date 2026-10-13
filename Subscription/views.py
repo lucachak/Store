@@ -1,84 +1,131 @@
-from django.shortcuts import render,redirect
+import logging
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils.translation import gettext as _
 from django.views import View
-from django.urls import reverse 
-from django.contrib import messages
-from Subscription.models import *
-from django.contrib import messages
-import Core.utils
 
-# Create your views here.
+import Core.billing as billing
+from Customers.models import Customer
+
+from . import services
+from .models import SubscriptionPrice, UserSubscription
+
+logger = logging.getLogger(__name__)
+
+
 class SubscriptionView(View):
-    def get(self,request, interval="month", *args, **kwargs):
-        base_qs = SubscriptionPrice.objects.filter(featured=True)
+    """Public pricing page."""
 
-        interval_mo = SubscriptionPrice.IntervalChoices.MONTHLY
-        interval_yr = SubscriptionPrice.IntervalChoices.YEARLY
+    def get(self, request, interval=SubscriptionPrice.IntervalChoices.MONTHLY, *args, **kwargs):
+        intervals = SubscriptionPrice.IntervalChoices
+        if interval not in intervals.values:
+            raise Http404
 
-        obj_list = base_qs.filter(interval=interval_mo)
+        base = SubscriptionPrice.objects.filter(
+            featured=True, subscription__active=True
+        ).select_related("subscription")
+        has_yearly = base.filter(interval=intervals.YEARLY).exists()
+        if interval == intervals.YEARLY and not has_yearly:
+            raise Http404
 
-        url_path_name = "subscription_inter"
-        mo_url = reverse(url_path_name, kwargs={"interval":interval_mo})
-        yr_url = reverse(url_path_name, kwargs={"interval":interval_yr})
+        current_plan_id = None
+        if request.user.is_authenticated:
+            current = (
+                UserSubscription.objects.filter(user=request.user).select_related("subscription").first()
+            )
+            if current and current.is_active_status:
+                current_plan_id = current.subscription_id
 
-        act = interval_mo 
-
-        if interval == interval_yr:
-            act = interval_yr
-            obj_list = base_qs.filter(interval=interval_yr)
-
-        context_manager = {
-            "obj_list":obj_list,
-            "mo_url":mo_url,
-            "yr_url":yr_url,
-            "act":act,
+        context = {
+            "obj_list": base.filter(interval=interval),
+            "act": interval,
+            "has_yearly": has_yearly,
+            "mo_url": reverse("subscription_inter", kwargs={"interval": intervals.MONTHLY}),
+            "yr_url": reverse("subscription_inter", kwargs={"interval": intervals.YEARLY}),
+            "current_plan_id": current_plan_id,
         }
-        
-        return render(request,"Subscription/pricing.html",context_manager)
+        return render(request, "Subscription/pricing.html", context)
 
 
-
-    def post(self,request, *args, **kwargs):
-        pass
-
-class UserSubscriptionView(View):
+class UserSubscriptionView(LoginRequiredMixin, View):
+    """The signed-in user's plan and billing details."""
 
     def get(self, request, *args, **kwargs):
-        user_sub_obj, created = UserSubscription.objects.get_or_create(user=request.user)
-        if request.method == "POST":
-            self.post(self, request, *args, **kwargs)
-        return render(request, 'Subscription/user-details-view.html', {"subscription": user_sub_obj})
-
+        record, _created = UserSubscription.objects.get_or_create(user=request.user)
+        return render(request, "Subscription/user-details-view.html", {"subscription": record})
 
     def post(self, request, *args, **kwargs):
-            user_sub_obj, created = UserSubscription.objects.get_or_create(user=request.user)
-            print("refresh sub")
-            finished = Core.utils.refresh_active_users_subscriptions(user_ids=[request.user.id], active_only=False)
-            if finished:
-                messages.success(request, "Your plan details have been refreshed.")
+        """Refresh the plan details from Stripe."""
+        record, _created = UserSubscription.objects.get_or_create(user=request.user)
+        if services.refresh_user_subscription(record):
+            messages.success(request, _("Your plan details are up to date."))
+        else:
+            messages.error(request, _("We couldn't refresh your plan details. Please try again."))
+        return redirect(record.get_absolute_url())
+
+
+class UserSubscriptionCancelView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        record, _created = UserSubscription.objects.get_or_create(user=request.user)
+        if not (record.stripe_id and record.is_active_status) or record.cancel_at_period_end:
+            return redirect(record.get_absolute_url())
+        return render(request, "Subscription/user-cancel-view.html", {"subscription": record})
+
+    def post(self, request, *args, **kwargs):
+        record, _created = UserSubscription.objects.get_or_create(user=request.user)
+        if record.stripe_id and record.is_active_status:
+            try:
+                stripe_subscription = billing.cancel_subscription(
+                    record.stripe_id,
+                    reason=request.POST.get("reason", "")[:500],
+                    at_period_end=True,
+                )
+            except (billing.StripeError, billing.BillingNotConfigured):
+                logger.exception("Could not cancel subscription %s", record.stripe_id)
+                messages.error(request, _("We couldn't cancel your plan. Please try again."))
+                return redirect(record.get_cancel_url())
+            services.sync_user_subscription(request.user, stripe_subscription)
+            messages.success(request, _("Your plan will end on the last day of the billing period."))
+        return redirect(record.get_absolute_url())
+
+
+class UserSubscriptionResumeView(LoginRequiredMixin, View):
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        record, _created = UserSubscription.objects.get_or_create(user=request.user)
+        if record.stripe_id and record.cancel_at_period_end and record.is_active_status:
+            try:
+                stripe_subscription = billing.resume_subscription(record.stripe_id)
+            except (billing.StripeError, billing.BillingNotConfigured):
+                logger.exception("Could not resume subscription %s", record.stripe_id)
+                messages.error(request, _("We couldn't resume your plan. Please try again."))
             else:
-                messages.error(request, "Your plan details have not been refreshed, please try again.")
-            return redirect(user_sub_obj.get_absolute_url())
+                services.sync_user_subscription(request.user, stripe_subscription)
+                messages.success(request, _("Your plan will renew as usual."))
+        return redirect(record.get_absolute_url())
 
 
-class UserSubscriptionCancelView(View):
-    
-    def get(self, request, *args, **kwargs):
-        user_sub_obj, created = UserSubscription.objects.get_or_create(user=request.user)
-        return render(request, 'Subscription/user-cancel-view.html', {"subscription": user_sub_obj})
-    
+class BillingPortalView(LoginRequiredMixin, View):
+    """Send the user to Stripe's portal to manage payment methods and invoices."""
+
+    http_method_names = ["post"]
+
     def post(self, request, *args, **kwargs):
-        user_sub_obj, created = UserSubscription.objects.get_or_create(user=request.user)
-        if request.method == "POST":
-            if user_sub_obj.stripe_id and user_sub_obj.is_active_status:
-                sub_data = Core.billing.cancel_subscription(
-                    user_sub_obj.stripe_id, 
-                    reason="User wanted to end", 
-                    feedback="other",
-                    cancel_at_period_end=True,
-                    raw=False)
-                for k,v in sub_data.items():
-                    setattr(user_sub_obj, k, v)
-                user_sub_obj.save()
-                messages.success(request, "Your plan has been cancelled.")
-            return redirect(user_sub_obj.get_absolute_url())
-        return render(request, 'Subscriptions/user-cancel-view.html', {"subscription": user_sub_obj})
+        customer = Customer.objects.filter(user=request.user).first()
+        if customer and customer.stripe_id:
+            try:
+                session = billing.create_portal_session(
+                    customer.stripe_id,
+                    return_url=f"{settings.BASE_URL}{reverse('user_subscription')}",
+                )
+                return redirect(session.url)
+            except (billing.StripeError, billing.BillingNotConfigured):
+                logger.exception("Could not open the billing portal for user %s", request.user.pk)
+        messages.error(request, _("We couldn't open the billing portal. Please try again."))
+        return redirect("user_subscription")

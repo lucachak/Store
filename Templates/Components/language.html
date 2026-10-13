@@ -1,0 +1,9 @@
+{% load i18n %}
+{% get_available_languages as LANGS %}
+<form action="{% url 'set_language' %}" method="post" class="flex items-center gap-3 text-sm">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  {% for code, name in LANGS %}
+    <button type="submit" name="language" value="{{ code }}" class="btn-link {% if code == LANGUAGE_CODE %}font-semibold !text-ink !no-underline{% else %}!text-muted{% endif %}" lang="{{ code }}" {% if code == LANGUAGE_CODE %}aria-current="true"{% endif %}>{{ name }}</button>
+  {% endfor %}
+</form>

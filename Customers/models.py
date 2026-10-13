@@ -1,71 +1,60 @@
-import Core.billing
-from django.db import models
+import logging
+
+from allauth.account.signals import email_confirmed, user_signed_up
 from django.conf import settings
+from django.db import models
+from django.dispatch import receiver
 
-from allauth.account.signals import (
-    user_signed_up as allauth_user_signed_up ,
-    email_confirmed as allauth_email_confirmed
-)
+import Core.billing as billing
 
-User = settings.AUTH_USER_MODEL
-
-
-# Create your models here.
+logger = logging.getLogger(__name__)
 
 
-"""
-CUSTOMER MODEL, IT CREATES A OBJ WITH STRIPE AND INCORPORATES FOR BOTH
-OUR *.DB AND THE STRIPE DASHBOARD.  
-"""
 class Customer(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    """Links a user to their Stripe customer.
+
+    The Stripe customer is created lazily, once the email is confirmed or when
+    the user first starts a checkout, never inside `save()`.
+    """
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     stripe_id = models.CharField(max_length=120, null=True, blank=True)
     init_email = models.EmailField(blank=True, null=True)
     init_email_confirmed = models.BooleanField(default=False)
 
     def __str__(self):
-        try:
-            return f"{self.user.username}"
-        except:
-            return f"{self.user.email}"
+        return self.user.email or self.user.get_username()
 
-    def save(self, *args, **kwargs):
+    def ensure_stripe_customer(self) -> str:
+        """Return the Stripe customer id, creating the customer if needed."""
         if not self.stripe_id:
-            if self.init_email_confirmed :
-                email = self.init_email
-                if email != "" or email is not None:
-                    stripe_id = Core.billing.create_customer(
-                        email=email,
-                        # PARSE USER INFO FROM OUR DB TO STRIPE
-                        metadata = {
-                            "user_id":self.user.id,
-                            "username": self.user.username
-                            },
-                        # TYPE OF RESPONSE FROM  BILLING
-                        raw=False
-                        )
-
-                    self.stripe_id = stripe_id
-
-        super().save(*args, **kwargs)
+            self.stripe_id = billing.create_customer(
+                email=self.user.email or self.init_email or "",
+                name=self.user.get_full_name(),
+                metadata={"user_id": self.user_id},
+            )
+            self.save(update_fields=["stripe_id"])
+        return self.stripe_id
 
 
-def allauth_user_signed_up_handler(request, user, *args, **kwargs):
-    email = user.email
-    Customer.objects.create(
-        user=user,
-        init_email=email,
-        init_email_confirmed=False
+@receiver(user_signed_up)
+def create_customer_on_signup(request, user, **kwargs):
+    Customer.objects.get_or_create(
+        user=user, defaults={"init_email": user.email, "init_email_confirmed": False}
     )
-allauth_user_signed_up.connect(allauth_user_signed_up_handler)
 
-def allauth_email_confirmed_handler(request, email_address, *args, **kwargs):
-    qs = Customer.objects.filter(
-        init_email=email_address,
-        init_email_confirmed=False
+
+@receiver(email_confirmed)
+def create_stripe_customer_on_confirm(request, email_address, **kwargs):
+    customer, _ = Customer.objects.get_or_create(
+        user=email_address.user, defaults={"init_email": email_address.email}
     )
-    for obj in qs:
-        obj.init_email_confirmed = True
-        obj.save() 
-
-allauth_email_confirmed.connect(allauth_email_confirmed_handler)
+    if not customer.init_email_confirmed:
+        customer.init_email_confirmed = True
+        customer.save(update_fields=["init_email_confirmed"])
+    if billing.is_configured():
+        try:
+            customer.ensure_stripe_customer()
+        except billing.StripeError:
+            # Not fatal: the customer is created again at checkout.
+            logger.exception("Could not create a Stripe customer for user %s", customer.user_id)

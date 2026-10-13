@@ -1,22 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
-</head>
-<body>
-    {% if is_me %}
-    <h1>Welcome to Your Profile {{ user }} #{{ user.id}}</h1>
-    {% else %}
-    <h1>Welcome to {{ instance.username }}'s Profile, {{ user }}</h1>
-    {% endif %}
-
-    <h2> {{ instance.username }} </h2>
-    <h2> {{ instance.email }} - {{ instance.last_login }}</h2>
-    <h2> {{ instance. }}</h2>
-
-    
-
-    </body>
-</html>
+{% extends "app.html" %}
+{% load i18n ui %}
+{% block title %}{{ profile.get_full_name|default:profile.email }} · {{ SITE_NAME }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <p class="!mt-0 mb-3"><a href="{% url 'users_list' %}">← {% trans "All users" %}</a></p>
+  <h1>{{ profile.get_full_name|default:profile.email|default:profile.username }}</h1>
+  {% if profile.get_full_name %}<p>{{ profile.email }}</p>{% endif %}
+</div>
+<div class="grid gap-12 lg:grid-cols-2">
+  <section class="section">
+    <h2 class="mb-3">{% trans "Account" %}</h2>
+    <dl class="statement">
+      <div class="statement-row"><dt>{% trans "Joined" %}</dt><dd>{{ profile.date_joined|date:"DATE_FORMAT" }}</dd></div>
+      <div class="statement-row"><dt>{% trans "Last sign-in" %}</dt><dd>{{ profile.last_login|date:"DATE_FORMAT"|default:"–" }}</dd></div>
+      <div class="statement-row"><dt>{% trans "Active" %}</dt><dd>{% if profile.is_active %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd></div>
+      <div class="statement-row"><dt>{% trans "Staff" %}</dt><dd>{% if profile.is_staff %}{% trans "Yes" %}{% else %}{% trans "No" %}{% endif %}</dd></div>
+    </dl>
+    <a class="btn btn-ghost btn-sm mt-4" href="{% url 'admin:auth_user_change' profile.pk %}">{% trans "Edit in admin" %}</a>
+  </section>
+  <section class="section">
+    <h2 class="mb-3">{% trans "Billing" %}</h2>
+    {% with sub=profile.usersubscription %}
+      {% if sub %}
+      <dl class="statement">
+        <div class="statement-row"><dt>{% trans "Plan" %}</dt><dd>{{ sub.plan_name|default:"–" }}</dd></div>
+        <div class="statement-row"><dt>{% trans "Status" %}</dt><dd>{{ sub.get_status_display|default:"–" }}</dd></div>
+        <div class="statement-row"><dt>{% trans "Period ends" %}</dt><dd>{{ sub.current_period_end|date:"DATE_FORMAT"|default:"–" }}</dd></div>
+        <div class="statement-row"><dt>{% trans "Subscription" %}</dt><dd class="mono">{{ sub.stripe_id|default:"–" }}</dd></div>
+        <div class="statement-row"><dt>{% trans "Customer" %}</dt><dd class="mono">{{ profile.customer.stripe_id|default:"–" }}</dd></div>
+      </dl>
+      {% else %}
+      <p class="text-muted">{% trans "This user has no plan." %}</p>
+      {% endif %}
+    {% endwith %}
+  </section>
+</div>
+{% endblock %}

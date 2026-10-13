@@ -1,30 +1,20 @@
-{% extends 'base.html' %}
-
-
-{% block title %}Your Subscription - {{ block.super }}{% endblock title %}
-
-{% block top %}
-
-{% include 'Components/navbar.html' %}
-
-{% endblock top%}
-
+{% extends "app.html" %}
+{% load i18n ui %}
+{% block title %}{% trans "Cancel plan" %} · {{ SITE_NAME }}{% endblock %}
 {% block content %}
-
-<div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
-
-{% if subscription.is_active_status  %}
-<h1 class="text-white text-lg font-medium">Are you sure you want to cancel {{ subscription.plan_name }}?</h1>
-
-
-<form action="" method="POST">{% csrf_token %}
-    <button class="text-white" type="submit" >Yes, cancel</button>
-</form>
-<a class="text-white " href="{{ subscription.get_absolute_url}}">No, go back</a>
-
-{% else %}
-
-<h1 class="text-white text-lg font-medium">Your membership is not longer active</h1>
-{% endif %}
+<div class="page-head">
+  <h1>{% blocktrans with name=subscription.plan_name %}Cancel {{ name }}?{% endblocktrans %}</h1>
+  <p>{% blocktrans with date=subscription.current_period_end|date:"DATE_FORMAT" %}You'll keep your plan until {{ date }}. After that you lose access to its features and you won't be charged again.{% endblocktrans %}</p>
 </div>
-{% endblock content %}
+<form method="post" class="max-w-xl">
+  {% csrf_token %}
+  <div class="field">
+    <label class="label" for="reason">{% trans "What made you cancel?" %} <span class="font-normal text-muted">({% trans "optional" %})</span></label>
+    <textarea class="textarea" id="reason" name="reason" maxlength="500"></textarea>
+  </div>
+  <div class="flex flex-wrap gap-3">
+    <button class="btn btn-danger" type="submit">{% trans "Cancel plan" %}</button>
+    <a class="btn btn-ghost" href="{{ subscription.get_absolute_url }}">{% trans "Keep my plan" %}</a>
+  </div>
+</form>
+{% endblock %}

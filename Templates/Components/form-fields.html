@@ -1,0 +1,29 @@
+{# Renders every field of a Django form. Usage: {% include "Components/form-fields.html" with form=form %} #}
+{% load i18n %}
+{% load widget_tweaks %}
+{% if form.non_field_errors %}
+  <div class="notice notice-error mb-4" role="alert">{{ form.non_field_errors|join:" " }}</div>
+{% endif %}
+{% for field in form %}
+  {% if field.is_hidden %}
+    {{ field }}
+  {% elif field.widget_type == "checkbox" %}
+    <div class="field {% if field.errors %}field-error{% endif %}">
+      <div class="check-row">
+        {{ field|add_class:"check" }}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      </div>
+      {% if field.help_text %}<div class="help">{{ field.help_text|safe }}</div>{% endif %}
+      {{ field.errors }}
+    </div>
+  {% else %}
+    <div class="field {% if field.errors %}field-error{% endif %}">
+      <label class="label" for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span class="font-normal text-muted">({% trans "optional" %})</span>{% endif %}</label>
+      {% if field.widget_type == "select" %}{{ field|add_class:"select" }}
+      {% elif field.widget_type == "textarea" %}{{ field|add_class:"textarea" }}
+      {% else %}{{ field|add_class:"input" }}{% endif %}
+      {% if field.help_text %}<div class="help">{{ field.help_text|safe }}</div>{% endif %}
+      {{ field.errors }}
+    </div>
+  {% endif %}
+{% endfor %}

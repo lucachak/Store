@@ -1,11 +1,9 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
-from .models import *
-# Register your models here.
+
+from .models import UsersCount
 
 
 @admin.register(UsersCount)
-class UserCount(ModelAdmin):
-    pass
-
-
+class UsersCountAdmin(ModelAdmin):
+    list_display = ["counter", "time_stamp"]

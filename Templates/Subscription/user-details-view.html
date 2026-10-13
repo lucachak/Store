@@ -1,32 +1,54 @@
-{% extends 'base.html'%}
-{% load static %}
-{% block title %} Your Details - {{ block.super }}  {% endblock title%}
-{% block links %} {{ block.super }} {% endblock links %}
-
-{% block top %}
-
-{% include 'Components/navbar.html' %}
-
-{% endblock top%}
+{% extends "app.html" %}
+{% load i18n ui %}
+{% block title %}{% trans "Billing" %} · {{ SITE_NAME }}{% endblock %}
 {% block content %}
-<div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14">
-    <h1 class="text-lg font-medium text-white">Your Subscription</h1>
-    <form action="" method="POST">{% csrf_token %}
-        <button  class="text-white" type="submit" >Refresh</button>
-    </form>
-</div>
-<div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-6">
-
-    <a class="text-white" href="{{ subscription.get_cancel_url }}">Cancel Membership</a>
-
-    <p class="text-white">Plan name: {{ subscription.plan_name }}</p>
-
-    <p class="text-white">Status: {{ subscription.status|title }}</p>
-
-    <p class="text-white">Membership age: {{ subscription.original_period_start|timesince }} </p>
-    <p class="text-white">Start: {{ subscription.current_period_start }}</p>
-
-    <p class="text-white">End: {{ subscription.current_period_end|timeuntil }} ({{ subscription.current_period_end }})</p>
+<div class="page-head">
+  <h1>{% trans "Billing" %}</h1>
+  <p>{% trans "Your plan, renewal date and payment details." %}</p>
 </div>
 
-{% endblock content %}
+{% if subscription.subscription %}
+  {% if subscription.status == "past_due" or subscription.status == "unpaid" %}
+    <div class="notice notice-danger mb-6" role="alert">{% trans "Your last payment didn't go through. Update your payment method to keep your plan." %}</div>
+  {% elif subscription.cancel_at_period_end and subscription.is_active_status %}
+    <div class="notice notice-warning mb-6">{% blocktrans with date=subscription.current_period_end|date:"DATE_FORMAT" %}Your plan is set to end on {{ date }}. You keep full access until then.{% endblocktrans %}</div>
+  {% endif %}
+
+  <section class="section" aria-labelledby="cur">
+    <h2 id="cur" class="mb-3">{% trans "Current plan" %}</h2>
+    <dl class="statement max-w-xl">
+      <div class="statement-row"><dt>{% trans "Plan" %}</dt><dd>{{ subscription.plan_name }}</dd></div>
+      <div class="statement-row"><dt>{% trans "Status" %}</dt><dd><span class="badge {% with tone=subscription.status|status_tone %}{% if tone %}badge-{{ tone }}{% endif %}{% endwith %}">{{ subscription.get_status_display }}</span></dd></div>
+      {% if subscription.original_period_start %}<div class="statement-row"><dt>{% trans "Member since" %}</dt><dd>{{ subscription.original_period_start|date:"DATE_FORMAT" }}</dd></div>{% endif %}
+      {% if subscription.current_period_start %}<div class="statement-row"><dt>{% trans "Current period started" %}</dt><dd>{{ subscription.current_period_start|date:"DATE_FORMAT" }}</dd></div>{% endif %}
+      {% if subscription.current_period_end %}<div class="statement-row"><dt>{% if subscription.cancel_at_period_end %}{% trans "Ends on" %}{% else %}{% trans "Renews on" %}{% endif %}</dt><dd>{{ subscription.current_period_end|date:"DATE_FORMAT" }}</dd></div>{% endif %}
+    </dl>
+  </section>
+
+  <section class="section" aria-labelledby="act">
+    <h2 id="act" class="mb-4">{% trans "Manage" %}</h2>
+    <div class="flex flex-wrap gap-3">
+      <a class="btn btn-ghost" href="{% url 'pricing' %}">{% trans "Change plan" %}</a>
+      <form method="post" action="{% url 'billing_portal' %}">{% csrf_token %}
+        <button class="btn btn-ghost" type="submit">{% trans "Payment method and invoices" %}</button>
+      </form>
+      <form method="post">{% csrf_token %}
+        <button class="btn btn-ghost" type="submit">{% trans "Refresh details" %}</button>
+      </form>
+      {% if subscription.cancel_at_period_end and subscription.is_active_status %}
+        <form method="post" action="{% url 'user_subscription_resume' %}">{% csrf_token %}
+          <button class="btn btn-primary" type="submit">{% trans "Keep my plan" %}</button>
+        </form>
+      {% elif subscription.is_active_status %}
+        <a class="btn btn-ghost" href="{{ subscription.get_cancel_url }}">{% trans "Cancel plan" %}</a>
+      {% endif %}
+    </div>
+  </section>
+{% else %}
+  <div class="empty border-t border-rule">
+    <h2>{% trans "You don't have a plan yet" %}</h2>
+    <p>{% trans "Choose a plan and your billing details will show up here." %}</p>
+    <a class="btn btn-primary" href="{% url 'pricing' %}">{% trans "See plans" %}</a>
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{% load i18n ui %}
+{% if page.object_list %}
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr>
+      <th scope="col">{% trans "User" %}</th><th scope="col">{% trans "Plan" %}</th><th scope="col">{% trans "Status" %}</th><th scope="col">{% trans "Joined" %}</th><th scope="col">{% trans "Last sign-in" %}</th>
+    </tr></thead>
+    <tbody>
+      {% for u in page.object_list %}
+      <tr>
+        <td><a class="font-semibold" href="{% url 'users_info_view' u.pk %}">{{ u.get_full_name|default:u.email|default:u.username }}</a>{% if u.get_full_name %}<br><span class="text-muted">{{ u.email }}</span>{% endif %}</td>
+        <td>{{ u.usersubscription.plan_name|default:"–" }}</td>
+        <td>{% with s=u.usersubscription %}{% if s.status %}<span class="badge {% with tone=s.status|status_tone %}{% if tone %}badge-{{ tone }}{% endif %}{% endwith %}">{{ s.get_status_display }}</span>{% else %}–{% endif %}{% endwith %}</td>
+        <td class="whitespace-nowrap">{{ u.date_joined|date:"SHORT_DATE_FORMAT" }}</td>
+        <td class="whitespace-nowrap">{{ u.last_login|date:"SHORT_DATE_FORMAT"|default:"–" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if page.paginator.num_pages > 1 %}
+<nav class="mt-4 flex items-center justify-between" aria-label="{% trans 'Pagination' %}">
+  {% if page.has_previous %}<a class="btn btn-ghost btn-sm" href="?q={{ q|urlencode }}&status={{ status }}&page={{ page.previous_page_number }}">{% trans "Previous" %}</a>{% else %}<span></span>{% endif %}
+  <span class="text-muted">{% blocktrans with n=page.number total=page.paginator.num_pages %}Page {{ n }} of {{ total }}{% endblocktrans %}</span>
+  {% if page.has_next %}<a class="btn btn-ghost btn-sm" href="?q={{ q|urlencode }}&status={{ status }}&page={{ page.next_page_number }}">{% trans "Next" %}</a>{% else %}<span></span>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<div class="empty border-t border-rule">
+  <h2>{% trans "No users match" %}</h2>
+  <p>{% trans "Try a different name or email, or clear the plan filter." %}</p>
+  <a class="btn btn-ghost btn-sm" href="{% url 'users_list' %}">{% trans "Clear filters" %}</a>
+</div>
+{% endif %}

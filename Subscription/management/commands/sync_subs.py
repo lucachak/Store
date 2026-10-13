@@ -1,16 +1,11 @@
-from typing import Any
 from django.core.management.base import BaseCommand
 
-from Subscription.models import Subscription
-
+from Subscription import services
 
 
 class Command(BaseCommand):
-    def handle(self, *args:Any, **kwargs:Any):
-        query_set = Subscription.objects.filter(active=True)
+    help = "Copy each active plan's permissions onto the plan's groups."
 
-        for obj in query_set:
-            sub_perms = obj.permission.all()
-
-            for group in obj.groups.all():
-                group.permissions.set(sub_perms)
+    def handle(self, *args, **options):
+        services.sync_group_permissions()
+        self.stdout.write(self.style.SUCCESS("Plan permissions synced to groups."))

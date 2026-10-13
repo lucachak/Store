@@ -1,0 +1,710 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-13 16:56+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: Auth/views.py:31
+msgid "First name"
+msgstr "Nome"
+
+#: Auth/views.py:32
+msgid "Last name"
+msgstr "Sobrenome"
+
+#: Auth/views.py:46
+msgid "Your profile has been saved."
+msgstr "Seu perfil foi salvo."
+
+#: Checkout/views.py:34
+msgid "Payments are not available right now. Please try again later."
+msgstr ""
+"Os pagamentos não estão disponíveis agora. Tente novamente mais tarde."
+
+#: Checkout/views.py:51
+msgid "We couldn't start the checkout. Please try again."
+msgstr "Não foi possível iniciar o checkout. Tente novamente."
+
+#: Checkout/views.py:73
+msgid "This checkout session doesn't belong to your account."
+msgstr "Esta sessão de checkout não pertence à sua conta."
+
+#: Checkout/views.py:78
+msgid ""
+"We couldn't confirm your payment yet. If you were charged, your plan will "
+"appear shortly."
+msgstr ""
+"Ainda não conseguimos confirmar seu pagamento. Se houve cobrança, seu plano "
+"aparecerá em instantes."
+
+#: Checkout/views.py:83
+msgid "You're subscribed. Thank you!"
+msgstr "Assinatura confirmada. Obrigado!"
+
+#: Subscription/models.py:76 Templates/Subscription/pricing.html:12
+msgid "Monthly"
+msgstr "Mensal"
+
+#: Subscription/models.py:77 Templates/Subscription/pricing.html:13
+msgid "Yearly"
+msgstr "Anual"
+
+#: Subscription/models.py:102 Templates/Auth/User/_user-table.html:6
+#: Templates/Auth/User/user-details.html:26 Templates/Home/dashboard.html:15
+#: Templates/Subscription/user-details-view.html:20
+msgid "Plan"
+msgstr "Plano"
+
+#: Subscription/models.py:140 Templates/Auth/User/user-details.html:16
+msgid "Active"
+msgstr "Ativa"
+
+#: Subscription/models.py:141
+msgid "Trialing"
+msgstr "Em teste"
+
+#: Subscription/models.py:142
+msgid "Incomplete"
+msgstr "Incompleta"
+
+#: Subscription/models.py:143
+msgid "Incomplete expired"
+msgstr "Incompleta expirada"
+
+#: Subscription/models.py:144 Templates/Home/dashboard.html:61
+msgid "Past due"
+msgstr "Pagamento atrasado"
+
+#: Subscription/models.py:145
+msgid "Canceled"
+msgstr "Cancelada"
+
+#: Subscription/models.py:146
+msgid "Unpaid"
+msgstr "Não paga"
+
+#: Subscription/models.py:147
+msgid "Paused"
+msgstr "Pausada"
+
+#: Subscription/views.py:66
+msgid "Your plan details are up to date."
+msgstr "Os dados do seu plano estão atualizados."
+
+#: Subscription/views.py:68
+msgid "We couldn't refresh your plan details. Please try again."
+msgstr "Não foi possível atualizar os dados do plano. Tente novamente."
+
+#: Subscription/views.py:90
+msgid "We couldn't cancel your plan. Please try again."
+msgstr "Não foi possível cancelar seu plano. Tente novamente."
+
+#: Subscription/views.py:93
+msgid "Your plan will end on the last day of the billing period."
+msgstr "Seu plano termina no último dia do período de cobrança."
+
+#: Subscription/views.py:107
+msgid "We couldn't resume your plan. Please try again."
+msgstr "Não foi possível retomar seu plano. Tente novamente."
+
+#: Subscription/views.py:110
+msgid "Your plan will renew as usual."
+msgstr "Seu plano será renovado normalmente."
+
+#: Subscription/views.py:130
+msgid "We couldn't open the billing portal. Please try again."
+msgstr "Não foi possível abrir o portal de cobrança. Tente novamente."
+
+#: Templates/400.html:3 Templates/400.html:7
+msgid "Bad request"
+msgstr "Requisição inválida"
+
+#: Templates/400.html:8
+msgid "The request couldn't be understood."
+msgstr "Não foi possível entender a requisição."
+
+#: Templates/400.html:9 Templates/403.html:9 Templates/404.html:9
+#: Templates/500.html:9
+msgid "Back to home"
+msgstr "Voltar ao início"
+
+#: Templates/403.html:3 Templates/403.html:7
+msgid "No access"
+msgstr "Sem acesso"
+
+#: Templates/403.html:8
+msgid "You don't have permission to view this page."
+msgstr "Você não tem permissão para ver esta página."
+
+#: Templates/404.html:3 Templates/404.html:7
+msgid "Page not found"
+msgstr "Página não encontrada"
+
+#: Templates/404.html:8
+msgid "The page you're looking for doesn't exist or has moved."
+msgstr "A página que você procura não existe ou mudou de lugar."
+
+#: Templates/500.html:4
+msgid "Something went wrong"
+msgstr "Algo deu errado"
+
+#: Templates/500.html:7
+msgid "Something went wrong on our side"
+msgstr "Algo deu errado do nosso lado"
+
+#: Templates/500.html:8
+msgid "We've been notified. Please try again in a few minutes."
+msgstr "Fomos avisados. Tente novamente em alguns minutos."
+
+#: Templates/Auth/User/_user-table.html:6
+msgid "User"
+msgstr "Usuário"
+
+#: Templates/Auth/User/_user-table.html:6
+#: Templates/Auth/User/user-details.html:27 Templates/Home/dashboard.html:16
+#: Templates/Subscription/user-details-view.html:21
+msgid "Status"
+msgstr "Status"
+
+#: Templates/Auth/User/_user-table.html:6
+#: Templates/Auth/User/user-details.html:14
+msgid "Joined"
+msgstr "Cadastro"
+
+#: Templates/Auth/User/_user-table.html:6
+#: Templates/Auth/User/user-details.html:15
+msgid "Last sign-in"
+msgstr "Último acesso"
+
+#: Templates/Auth/User/_user-table.html:22
+msgid "Pagination"
+msgstr "Paginação"
+
+#: Templates/Auth/User/_user-table.html:23
+msgid "Previous"
+msgstr "Anterior"
+
+#: Templates/Auth/User/_user-table.html:24
+#, python-format
+msgid "Page %(n)s of %(total)s"
+msgstr "Página %(n)s de %(total)s"
+
+#: Templates/Auth/User/_user-table.html:25
+msgid "Next"
+msgstr "Próxima"
+
+#: Templates/Auth/User/_user-table.html:30
+msgid "No users match"
+msgstr "Nenhum usuário encontrado"
+
+#: Templates/Auth/User/_user-table.html:31
+msgid "Try a different name or email, or clear the plan filter."
+msgstr "Tente outro nome ou e-mail, ou limpe o filtro de plano."
+
+#: Templates/Auth/User/_user-table.html:32
+msgid "Clear filters"
+msgstr "Limpar filtros"
+
+#: Templates/Auth/User/settings.html:3 Templates/Auth/User/settings.html:6
+#: Templates/allauth/layouts/manage.html:12
+msgid "Profile"
+msgstr "Perfil"
+
+#: Templates/Auth/User/settings.html:7
+msgid "How we address you, and how you sign in."
+msgstr "Como tratamos você e como você entra."
+
+#: Templates/Auth/User/settings.html:13
+msgid "Save changes"
+msgstr "Salvar alterações"
+
+#: Templates/Auth/User/settings.html:17
+msgid "Sign-in and security"
+msgstr "Acesso e segurança"
+
+#: Templates/Auth/User/settings.html:19
+#: Templates/allauth/layouts/manage.html:13
+msgid "Email"
+msgstr "E-mail"
+
+#: Templates/Auth/User/settings.html:19
+msgid "Not confirmed"
+msgstr "Não confirmado"
+
+#: Templates/Auth/User/settings.html:20 Templates/Home/dashboard.html:41
+msgid "Two-factor authentication"
+msgstr "Autenticação em dois fatores"
+
+#: Templates/Auth/User/settings.html:20 Templates/Home/dashboard.html:42
+msgid "On"
+msgstr "Ativada"
+
+#: Templates/Auth/User/settings.html:20
+msgid "Off"
+msgstr "Desativada"
+
+#: Templates/Auth/User/user-details.html:6 Templates/Home/dashboard.html:56
+msgid "All users"
+msgstr "Todos os usuários"
+
+#: Templates/Auth/User/user-details.html:12
+#: Templates/allauth/layouts/manage.html:6 Templates/app.html:22
+msgid "Account"
+msgstr "Conta"
+
+#: Templates/Auth/User/user-details.html:16
+#: Templates/Auth/User/user-details.html:17
+msgid "Yes"
+msgstr "Sim"
+
+#: Templates/Auth/User/user-details.html:16
+#: Templates/Auth/User/user-details.html:17
+msgid "No"
+msgstr "Não"
+
+#: Templates/Auth/User/user-details.html:17 Templates/app.html:24
+msgid "Staff"
+msgstr "Equipe"
+
+#: Templates/Auth/User/user-details.html:19
+msgid "Edit in admin"
+msgstr "Editar no admin"
+
+#: Templates/Auth/User/user-details.html:22
+#: Templates/Subscription/user-details-view.html:3
+#: Templates/Subscription/user-details-view.html:6 Templates/app.html:20
+msgid "Billing"
+msgstr "Cobrança"
+
+#: Templates/Auth/User/user-details.html:28
+msgid "Period ends"
+msgstr "Fim do período"
+
+#: Templates/Auth/User/user-details.html:29
+msgid "Subscription"
+msgstr "Assinatura"
+
+#: Templates/Auth/User/user-details.html:30
+msgid "Customer"
+msgstr "Cliente"
+
+#: Templates/Auth/User/user-details.html:33
+msgid "This user has no plan."
+msgstr "Este usuário não tem plano."
+
+#: Templates/Auth/User/user-list.html:3 Templates/Auth/User/user-list.html:6
+#: Templates/Home/dashboard.html:59 Templates/app.html:25
+msgid "Users"
+msgstr "Usuários"
+
+#: Templates/Auth/User/user-list.html:7
+msgid "Everyone who has an account, with their plan."
+msgstr "Todas as pessoas com conta, com o respectivo plano."
+
+#: Templates/Auth/User/user-list.html:13
+msgid "Search"
+msgstr "Buscar"
+
+#: Templates/Auth/User/user-list.html:14
+msgid "Name or email"
+msgstr "Nome ou e-mail"
+
+#: Templates/Auth/User/user-list.html:17
+msgid "Plan status"
+msgstr "Status do plano"
+
+#: Templates/Auth/User/user-list.html:19
+msgid "All"
+msgstr "Todos"
+
+#: Templates/Auth/User/user-list.html:20
+msgid "No plan"
+msgstr "Sem plano"
+
+#: Templates/Auth/User/user-list.html:24
+msgid "Apply"
+msgstr "Aplicar"
+
+#: Templates/Components/form-fields.html:21
+#: Templates/Subscription/user-cancel-view.html:12
+msgid "optional"
+msgstr "opcional"
+
+#: Templates/Components/theme-toggle.html:2
+msgid "Switch between dark and light theme"
+msgstr "Alternar entre tema escuro e claro"
+
+#: Templates/Components/theme-toggle.html:3
+msgid "Theme"
+msgstr "Tema"
+
+#: Templates/Home/dashboard.html:3 Templates/Home/dashboard.html:6
+#: Templates/app.html:19
+msgid "Overview"
+msgstr "Visão geral"
+
+#: Templates/Home/dashboard.html:7
+#, python-format
+msgid "Signed in as %(name)s."
+msgstr "Conectado como %(name)s."
+
+#: Templates/Home/dashboard.html:12
+msgid "Your plan"
+msgstr "Seu plano"
+
+#: Templates/Home/dashboard.html:18
+#: Templates/Subscription/user-details-view.html:24
+msgid "Ends on"
+msgstr "Termina em"
+
+#: Templates/Home/dashboard.html:18
+#: Templates/Subscription/user-details-view.html:24
+msgid "Renews on"
+msgstr "Renova em"
+
+#: Templates/Home/dashboard.html:22
+msgid "Manage billing"
+msgstr "Gerenciar cobrança"
+
+#: Templates/Home/dashboard.html:26
+msgid "You're not on a plan yet"
+msgstr "Você ainda não tem um plano"
+
+#: Templates/Home/dashboard.html:27
+msgid ""
+"Pick a plan to unlock paid features. You can change or cancel it at any "
+"time."
+msgstr ""
+"Escolha um plano para liberar os recursos pagos. Você pode trocar ou "
+"cancelar quando quiser."
+
+#: Templates/Home/dashboard.html:28 Templates/Home/home.html:45
+msgid "Choose a plan"
+msgstr "Escolher um plano"
+
+#: Templates/Home/dashboard.html:34
+msgid "Account checklist"
+msgstr "Checklist da conta"
+
+#: Templates/Home/dashboard.html:37
+msgid "Email confirmed"
+msgstr "E-mail confirmado"
+
+#: Templates/Home/dashboard.html:38 Templates/Home/dashboard.html:46
+msgid "Done"
+msgstr "Feito"
+
+#: Templates/Home/dashboard.html:38
+msgid "Confirm"
+msgstr "Confirmar"
+
+#: Templates/Home/dashboard.html:42
+msgid "Set up"
+msgstr "Configurar"
+
+#: Templates/Home/dashboard.html:45
+msgid "Plan chosen"
+msgstr "Plano escolhido"
+
+#: Templates/Home/dashboard.html:46
+msgid "Choose"
+msgstr "Escolher"
+
+#: Templates/Home/dashboard.html:55
+msgid "Workspace"
+msgstr "Painel da equipe"
+
+#: Templates/Home/dashboard.html:60
+msgid "Paying"
+msgstr "Pagantes"
+
+#: Templates/Home/dashboard.html:62
+msgid "Active plans"
+msgstr "Planos ativos"
+
+#: Templates/Home/dashboard.html:63
+msgid "Landing visits"
+msgstr "Visitas à página inicial"
+
+#: Templates/Home/home.html:7
+msgid "Your account and your subscription, in one place."
+msgstr "Sua conta e sua assinatura, em um só lugar."
+
+#: Templates/Home/home.html:8
+msgid ""
+"Sign up with your email, GitHub or Google, choose a plan and pay through "
+"Stripe. Change or cancel from your billing page whenever you need to."
+msgstr ""
+"Cadastre-se com e-mail, GitHub ou Google, escolha um plano e pague pelo "
+"Stripe. Troque ou cancele pela sua página de cobrança quando precisar."
+
+#: Templates/Home/home.html:11
+msgid "Open dashboard"
+msgstr "Abrir painel"
+
+#: Templates/Home/home.html:13
+msgid "Create your account"
+msgstr "Criar sua conta"
+
+#: Templates/Home/home.html:15
+#: Templates/Subscription/user-details-view.html:51
+msgid "See plans"
+msgstr "Ver planos"
+
+#: Templates/Home/home.html:20 Templates/Subscription/pricing.html:3
+#: Templates/Subscription/pricing.html:7 Templates/app.html:21
+#: Templates/public.html:11
+msgid "Plans"
+msgstr "Planos"
+
+#: Templates/Home/home.html:26 Templates/Subscription/pricing.html:26
+msgid "month"
+msgstr "mês"
+
+#: Templates/Home/home.html:30
+msgid "Compare what each plan includes"
+msgstr "Compare o que cada plano inclui"
+
+#: Templates/Home/home.html:33
+msgid "No plans are published yet."
+msgstr "Nenhum plano foi publicado ainda."
+
+#: Templates/Home/home.html:34 Templates/Subscription/pricing.html:54
+msgid "Add a plan"
+msgstr "Adicionar um plano"
+
+#: Templates/Home/home.html:41
+msgid "How it works"
+msgstr "Como funciona"
+
+#: Templates/Home/home.html:43
+msgid "Create an account"
+msgstr "Crie uma conta"
+
+#: Templates/Home/home.html:43
+msgid "Use your email and a password, or sign in with GitHub or Google."
+msgstr "Use e-mail e senha, ou entre com GitHub ou Google."
+
+#: Templates/Home/home.html:44
+msgid "Confirm your email"
+msgstr "Confirme seu e-mail"
+
+#: Templates/Home/home.html:44
+msgid "We send you a link. Plans can only be bought from a confirmed address."
+msgstr ""
+"Enviamos um link. Só é possível contratar planos com um e-mail confirmado."
+
+#: Templates/Home/home.html:45
+msgid ""
+"You pay on Stripe's checkout page. Your card details never reach our "
+"servers."
+msgstr ""
+"Você paga na página de checkout do Stripe. Os dados do seu cartão nunca "
+"chegam aos nossos servidores."
+
+#: Templates/Home/home.html:46
+msgid "Manage it yourself"
+msgstr "Gerencie por conta própria"
+
+#: Templates/Home/home.html:46
+msgid ""
+"See your renewal date, update your card, switch plan or cancel. No emails to"
+" support needed."
+msgstr ""
+"Veja a data de renovação, atualize o cartão, troque de plano ou cancele. Sem"
+" precisar falar com o suporte."
+
+#: Templates/Subscription/pricing.html:8
+msgid ""
+"Pick the plan that fits. You can switch or cancel from your billing page at "
+"any time."
+msgstr ""
+"Escolha o plano ideal. Você pode trocar ou cancelar pela página de cobrança "
+"quando quiser."
+
+#: Templates/Subscription/pricing.html:11
+msgid "Billing interval"
+msgstr "Periodicidade"
+
+#: Templates/Subscription/pricing.html:26
+msgid "year"
+msgstr "ano"
+
+#: Templates/Subscription/pricing.html:36
+msgid "Your current plan"
+msgstr "Seu plano atual"
+
+#: Templates/Subscription/pricing.html:38
+msgid "Create an account to subscribe"
+msgstr "Crie uma conta para assinar"
+
+#: Templates/Subscription/pricing.html:40
+msgid "Payments unavailable"
+msgstr "Pagamentos indisponíveis"
+
+#: Templates/Subscription/pricing.html:43
+#, python-format
+msgid "Switch to %(name)s"
+msgstr "Trocar para %(name)s"
+
+#: Templates/Subscription/pricing.html:43
+#, python-format
+msgid "Subscribe to %(name)s"
+msgstr "Assinar %(name)s"
+
+#: Templates/Subscription/pricing.html:52
+msgid "No plans are available yet"
+msgstr "Ainda não há planos disponíveis"
+
+#: Templates/Subscription/pricing.html:53
+msgid "Plans will show up here as soon as they are published."
+msgstr "Os planos aparecerão aqui assim que forem publicados."
+
+#: Templates/Subscription/user-cancel-view.html:3
+#: Templates/Subscription/user-cancel-view.html:16
+#: Templates/Subscription/user-details-view.html:43
+msgid "Cancel plan"
+msgstr "Cancelar plano"
+
+#: Templates/Subscription/user-cancel-view.html:6
+#, python-format
+msgid "Cancel %(name)s?"
+msgstr "Cancelar %(name)s?"
+
+#: Templates/Subscription/user-cancel-view.html:7
+#, python-format
+msgid ""
+"You'll keep your plan until %(date)s. After that you lose access to its "
+"features and you won't be charged again."
+msgstr ""
+"Você mantém seu plano até %(date)s. Depois disso, perde o acesso aos "
+"recursos e não será cobrado novamente."
+
+#: Templates/Subscription/user-cancel-view.html:12
+msgid "What made you cancel?"
+msgstr "O que motivou o cancelamento?"
+
+#: Templates/Subscription/user-cancel-view.html:17
+#: Templates/Subscription/user-details-view.html:40
+msgid "Keep my plan"
+msgstr "Manter meu plano"
+
+#: Templates/Subscription/user-details-view.html:7
+msgid "Your plan, renewal date and payment details."
+msgstr "Seu plano, data de renovação e dados de pagamento."
+
+#: Templates/Subscription/user-details-view.html:12
+msgid ""
+"Your last payment didn't go through. Update your payment method to keep your"
+" plan."
+msgstr ""
+"Seu último pagamento não foi processado. Atualize a forma de pagamento para "
+"manter seu plano."
+
+#: Templates/Subscription/user-details-view.html:14
+#, python-format
+msgid "Your plan is set to end on %(date)s. You keep full access until then."
+msgstr "Seu plano termina em %(date)s. Você mantém o acesso completo até lá."
+
+#: Templates/Subscription/user-details-view.html:18
+msgid "Current plan"
+msgstr "Plano atual"
+
+#: Templates/Subscription/user-details-view.html:22
+msgid "Member since"
+msgstr "Cliente desde"
+
+#: Templates/Subscription/user-details-view.html:23
+msgid "Current period started"
+msgstr "Período atual iniciado em"
+
+#: Templates/Subscription/user-details-view.html:29
+msgid "Manage"
+msgstr "Gerenciar"
+
+#: Templates/Subscription/user-details-view.html:31
+msgid "Change plan"
+msgstr "Trocar de plano"
+
+#: Templates/Subscription/user-details-view.html:33
+msgid "Payment method and invoices"
+msgstr "Forma de pagamento e faturas"
+
+#: Templates/Subscription/user-details-view.html:36
+msgid "Refresh details"
+msgstr "Atualizar dados"
+
+#: Templates/Subscription/user-details-view.html:49
+msgid "You don't have a plan yet"
+msgstr "Você ainda não tem um plano"
+
+#: Templates/Subscription/user-details-view.html:50
+msgid "Choose a plan and your billing details will show up here."
+msgstr "Escolha um plano e os dados de cobrança aparecerão aqui."
+
+#: Templates/allauth/elements/provider.html:2
+#, python-format
+msgid "Continue with %(name)s"
+msgstr "Continuar com %(name)s"
+
+#: Templates/allauth/elements/provider_list.html:3
+msgid "Or continue with"
+msgstr "Ou continue com"
+
+#: Templates/allauth/layouts/manage.html:14
+msgid "Password"
+msgstr "Senha"
+
+#: Templates/allauth/layouts/manage.html:15
+msgid "Two-factor"
+msgstr "Dois fatores"
+
+#: Templates/allauth/layouts/manage.html:16
+msgid "Connections"
+msgstr "Conexões"
+
+#: Templates/app.html:10
+msgid "Menu"
+msgstr "Menu"
+
+#: Templates/app.html:18 Templates/public.html:10
+msgid "Main"
+msgstr "Principal"
+
+#: Templates/app.html:26
+msgid "Admin site"
+msgstr "Site de administração"
+
+#: Templates/app.html:35
+msgid "Sign out"
+msgstr "Sair"
+
+#: Templates/base.html:19
+msgid "Skip to content"
+msgstr "Pular para o conteúdo"
+
+#: Templates/public.html:13
+msgid "Dashboard"
+msgstr "Painel"
+
+#: Templates/public.html:15
+msgid "Sign in"
+msgstr "Entrar"
+
+#: Templates/public.html:16
+msgid "Create account"
+msgstr "Criar conta"
